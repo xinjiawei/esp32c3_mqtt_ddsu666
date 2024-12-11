@@ -1,0 +1,19 @@
+idf_component_register(
+                    SRCS
+                    	app_main.c
+                    	form_parser.c
+                    	ir.c
+                    	ir_nec_decoder.c
+                    	ir_nec_encoder.c
+                    	led.c
+                    	mqtt4.c
+                    	tools.c
+                    	web_handler.c
+                    	wifimanager.c
+                    	uart.c
+                    PRIV_INCLUDE_DIRS
+                    	D://SysGCC/esp32/esp-idf/v5.3.1/components/esp_driver_rmt/include
+                    	D://SysGCC/esp32/esp-idf/v5.3.1/components/esp_rom/include/esp32/rom
+                    	D://SysGCC/esp32/esp-idf/v5.3.1/components/esp_driver_uart/include
+                    	D://SysGCC/esp32/esp-idf/v5.3.1/components/esp_partition/include
+                    	D://SysGCC/esp32/esp-idf/v5.3.1/components/nvs_flash/include)

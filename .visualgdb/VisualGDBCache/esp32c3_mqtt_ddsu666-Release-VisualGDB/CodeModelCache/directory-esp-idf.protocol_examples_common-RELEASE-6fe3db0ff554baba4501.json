@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "esp-idf/protocol_examples_common",
+		"source" : "D:/SysGCC/esp32/esp-idf/v5.3.1/examples/common_components/protocol_examples_common"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "esp-idf/esp_coex",
+		"source" : "D:/SysGCC/esp32/esp-idf/v5.3.1/components/esp_coex"
+	}
+}

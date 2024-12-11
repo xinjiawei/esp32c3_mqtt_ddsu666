@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<MemoryUtilizationReport xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Memories>
+    <MemoryUtilization>
+      <MemoryName>DATA_FLASH</MemoryName>
+      <Used>166756</Used>
+      <Total>8388608</Total>
+    </MemoryUtilization>
+    <MemoryUtilization>
+      <MemoryName>INSTR_FLASH</MemoryName>
+      <Used>88264</Used>
+      <Total>8388608</Total>
+    </MemoryUtilization>
+    <MemoryUtilization>
+      <MemoryName>INSTR_RAM</MemoryName>
+      <Used>46080</Used>
+      <Total>321296</Total>
+    </MemoryUtilization>
+    <MemoryUtilization>
+      <MemoryName>DATA_RAM</MemoryName>
+      <Used>54788</Used>
+      <Total>321296</Total>
+    </MemoryUtilization>
+    <MemoryUtilization>
+      <MemoryName>Unknown</MemoryName>
+      <Used>536</Used>
+      <Total>0</Total>
+    </MemoryUtilization>
+  </Memories>
+</MemoryUtilizationReport>
