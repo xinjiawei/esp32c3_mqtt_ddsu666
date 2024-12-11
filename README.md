@@ -29,3 +29,9 @@ ddsu666电表通讯:
 ## 其他
 uint8转float的代码参考: https://github.com/gjtimms/Modbus-RTU-Listen
 
+## 效果
+![example](https://cf.mb6.top/lib/images/github/20241211/b00b9f9237d13798349b2a507c80cbb4.jpg)
+![example](https://cf.mb6.top/lib/images/github/20241211/C_N4NO1R8U@SJICKCO_NTEB.png)
+![example](https://cf.mb6.top/lib/images/github/20241211/97899446cfe9345c70c12590cad1b4c7.jpg)
+
+
