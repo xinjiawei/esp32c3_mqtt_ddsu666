@@ -25,3 +25,7 @@ ddsu666电表通讯:
 + 更改电表数据读取频率.
 + 异步读取电表数据
 + 支持电能清零
+
+## 其他
+uint8转float的代码参考: https://github.com/gjtimms/Modbus-RTU-Listen
+
