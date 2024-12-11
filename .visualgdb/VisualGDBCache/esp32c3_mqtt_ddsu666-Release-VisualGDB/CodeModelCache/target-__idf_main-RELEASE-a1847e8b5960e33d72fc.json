@@ -941,24 +941,28 @@
 			"id" : "__idf_app_trace::@dd7eb3aa23293586d3b8"
 		},
 		{
-			"backtrace" : 5,
-			"id" : "__idf_cmock::@38f9eb59693b7394f54c"
+			"backtrace" : 8,
+			"id" : "__idf_console::@4311ed8d271cc0ee1422"
 		},
 		{
 			"backtrace" : 5,
 			"id" : "__idf_unity::@fec746937506b5690992"
 		},
 		{
-			"backtrace" : 8,
-			"id" : "__idf_console::@4311ed8d271cc0ee1422"
+			"backtrace" : 5,
+			"id" : "__idf_cmock::@38f9eb59693b7394f54c"
 		},
 		{
 			"backtrace" : 5,
-			"id" : "__idf_esp_lcd::@d5a84597e1633c9ab0d3"
+			"id" : "__idf_protocomm::@d76d01c8dec06205e1fc"
 		},
 		{
 			"backtrace" : 5,
-			"id" : "__idf_esp_https_server::@a47490a9e49b7eabdb18"
+			"id" : "__idf_protobuf-c::@b14513c4bd859268ec22"
+		},
+		{
+			"backtrace" : 5,
+			"id" : "__idf_wear_levelling::@cb21b0d7c0815cff11c6"
 		},
 		{
 			"backtrace" : 5,
@@ -967,18 +971,6 @@
 		{
 			"backtrace" : 5,
 			"id" : "__idf_esp_local_ctrl::@d6aad58d2946e56208ef"
-		},
-		{
-			"backtrace" : 5,
-			"id" : "__idf_wear_levelling::@cb21b0d7c0815cff11c6"
-		},
-		{
-			"backtrace" : 5,
-			"id" : "__idf_protobuf-c::@b14513c4bd859268ec22"
-		},
-		{
-			"backtrace" : 5,
-			"id" : "__idf_protocomm::@d76d01c8dec06205e1fc"
 		},
 		{
 			"backtrace" : 5,
@@ -998,11 +990,11 @@
 		},
 		{
 			"backtrace" : 5,
-			"id" : "__idf_spiffs::@df881b71474064c86689"
+			"id" : "__idf_esp_lcd::@d5a84597e1633c9ab0d3"
 		},
 		{
 			"backtrace" : 5,
-			"id" : "__idf_mqtt::@c1ab2c6a99226d1f4b56"
+			"id" : "__idf_esp_https_server::@a47490a9e49b7eabdb18"
 		},
 		{
 			"backtrace" : 5,
@@ -1010,11 +1002,19 @@
 		},
 		{
 			"backtrace" : 5,
-			"id" : "__idf_wifi_provisioning::@9d7e7ffe1b15746c1098"
+			"id" : "__idf_spiffs::@df881b71474064c86689"
+		},
+		{
+			"backtrace" : 5,
+			"id" : "__idf_mqtt::@c1ab2c6a99226d1f4b56"
 		},
 		{
 			"backtrace" : 8,
 			"id" : "__idf_protocol_examples_common::@f775e6a13b1007a4569f"
+		},
+		{
+			"backtrace" : 5,
+			"id" : "__idf_wifi_provisioning::@9d7e7ffe1b15746c1098"
 		}
 	],
 	"id" : "__idf_main::@7368607ed66887415643",

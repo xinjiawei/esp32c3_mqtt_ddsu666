@@ -290,6 +290,20 @@
 			"path" : "C:/Users/XINJIAWEI/AppData/Local/VisualGDB/CMake/share/cmake-3.28/Modules/Compiler/GNU.cmake"
 		},
 		{
+			"path" : ".git/HEAD"
+		},
+		{
+			"isExternal" : true,
+			"path" : "D:/SysGCC/esp32/esp-idf/v5.3.1/tools/cmake/third_party/GetGitRevisionDescription.cmake.in"
+		},
+		{
+			"isGenerated" : true,
+			"path" : "build/VisualGDB/Release/CMakeFiles/git-data/grabRef.cmake"
+		},
+		{
+			"path" : ".git/refs/heads/master"
+		},
+		{
 			"isExternal" : true,
 			"path" : "D:/SysGCC/esp32/esp-idf/v5.3.1/tools/kconfig_new/config.env.in"
 		},

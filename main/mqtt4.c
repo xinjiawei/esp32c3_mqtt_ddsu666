@@ -16,6 +16,7 @@
 
 static const char *TAG = "mqtt";
 char response_s[5120];
+static char mqtt4_connect_url[] = "mqtt://admin:123456@act.jiawei.xin:1883";
 
 static void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -173,7 +174,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 void mqtt_app_start(void)
 {
 	esp_mqtt_client_config_t mqtt_cfg = {
-		.broker.address.uri = "mqtt://admin:123456@act.jiawei.xin:1883"};
+		.broker.address.uri = mqtt4_connect_url};
 
 	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
 	/* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
