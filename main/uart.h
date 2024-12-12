@@ -16,3 +16,5 @@ void uart_loop(void *arg);
 void remove_rec_task();
 void change_rec_wait(int sec);
 void set_is_clear_total_engery();
+int get_loop_count();
+int get_rec_wait();

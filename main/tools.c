@@ -2,6 +2,57 @@
 #include "esp_err.h"
 #include "esp_mac.h"
 #include "esp_system.h"
+#include "esp_spiffs.h"
+#include "nvs_flash.h"
+#include "esp_system.h"
+#include "esp_event.h"
+#include "esp_log.h"
+
+#include "led.h"
+
+static const char *TAG = "tools";
+
+void filesys_init() {
+	ESP_ERROR_CHECK(nvs_flash_init());
+	esp_vfs_spiffs_conf_t conf = {.base_path = "/ddsu666",
+								  .partition_label = "spiffs",
+								  .max_files = 5,
+								  .format_if_mount_failed = true};
+
+	// Use settings defined above to initialize and mount SPIFFS filesystem.
+	// Note: esp_vfs_spiffs_register is an all-in-one convenience function.
+	esp_err_t ret = esp_vfs_spiffs_register(&conf);
+	if (ret != ESP_OK)
+	{
+		if (ret == ESP_FAIL)
+		{
+			ESP_LOGI(TAG, "Failed to mount or format filesystem");
+		}
+		else if (ret == ESP_ERR_NOT_FOUND)
+		{
+			ESP_LOGI(TAG, "Failed to find SPIFFS partition");
+		}
+		else
+		{
+			ESP_LOGI(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+		}
+		return;
+	}
+	size_t total = 0, used = 0;
+	ret = esp_spiffs_info(conf.partition_label, &total, &used);
+	if (ret != ESP_OK)
+	{
+		ESP_LOGI(TAG,
+				 "Failed to get SPIFFS partition information (%s). Formatting...",
+				 esp_err_to_name(ret));
+		esp_spiffs_format(conf.partition_label);
+		return;
+	}
+	else
+	{
+		ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+	}
+}
 
 char *get_len_str(char * original, int len) {
 	char *dest = (char *)calloc(sizeof(char), (++len));
@@ -134,11 +185,14 @@ float float_from_8hex(int arr[])
 
 /*
  *解析电表电量数据*/
-void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current, float *power) {
+void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current,
+						  float *a_power, float *r_power, float *ap_power,
+						  float *power_factor, float *power_frequency) {
 	uint8_t ptr;
 	int ints_4[4];
 	// int data_len = sizeof(bytes);
 
+	// A 相电压
 	ptr = 3; // Point to voltage data
 	for (int z = 0; z < 4; z++)
 	{
@@ -147,7 +201,8 @@ void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current, float
 	float v = float_from_8hex(ints_4);   // Decode the 4 byte single precision float
 	printf("Volts = %f\r\n", v); // Log converted float value (optional).
 	*voltage = v;
-	
+
+	// A 相电流
 	ptr = 7;								   // Point to current data
 	for (int z = 0; z < 4; z++)
 	{
@@ -156,15 +211,57 @@ void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current, float
 	float c = float_from_8hex(ints_4);	 // Decode the 4 byte single precision float
 	printf("Current = %f\r\n", c); // Log converted float value (optional).
 	*current = c;
-	
+
+	// 总有功功率
 	ptr = 11;									 // Point to power data
 	for (int z = 0; z < 4; z++)
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float p = float_from_8hex(ints_4);	 // Decode the 4 byte single precision float
-	printf("Power = %f\r\n", p); // Log converted float value (optional).
-	*power = p;
+	float ap = float_from_8hex(ints_4);	 // Decode the 4 byte single precision float
+	printf("active Power = %f\r\n", ap); // Log converted float value (optional).
+	*a_power = ap;
+
+	// 总无功功率
+	ptr = 15; // Point to power data
+	for (int z = 0; z < 4; z++)
+	{
+		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
+	}
+	float rp = float_from_8hex(ints_4); // Decode the 4 byte single precision float
+	printf("reactive power = %f\r\n", rp);	   // Log converted float value (optional).
+	*r_power = rp;
+
+	// 总视在功率
+	ptr = 19; // Point to power data
+	for (int z = 0; z < 4; z++)
+	{
+		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
+	}
+	float ap_p = float_from_8hex(ints_4);	   // Decode the 4 byte single precision float
+	printf("apparent power = %f\r\n", ap_p); // Log converted float value (optional).
+	*ap_power = ap_p;
+
+	// 功率因素
+	ptr = 23; // Point to power data
+	for (int z = 0; z < 4; z++)
+	{
+		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
+	}
+	float p_f = float_from_8hex(ints_4); // Decode the 4 byte single precision float
+	printf("power factor = %f\r\n", p_f);   // Log converted float value (optional).
+	*power_factor = p_f;
+
+	// 电网频率
+	ptr = 31;
+	for (int z = 0; z < 4; z++)
+	{
+		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
+	}
+	float p_fr = float_from_8hex(ints_4); // Decode the 4 byte single precision float
+	printf("power frequency = %f\r\n", p_fr);   // Log converted float value (optional).
+	*power_frequency = p_fr;
+	
 }
 
 /*
@@ -188,4 +285,14 @@ void debug_switch() {
 	extern int debug;
 	debug = !debug;
 	printf("debug mode is %d\r\n", debug);
+}
+
+void led_loop(int times) {
+	for (int i = 0; i < times; i++)
+	{
+		led_blink();
+		vTaskDelay(200 / portTICK_PERIOD_MS);
+	}
+
+
 }

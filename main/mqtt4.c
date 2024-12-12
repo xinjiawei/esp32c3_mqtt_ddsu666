@@ -16,8 +16,14 @@
 
 static const char *TAG = "mqtt";
 char response_s[5120];
+static int mqtt_disconnect_count = 0;
+// mqtt允许的连续断开次数最大值
+const static int mqtt_disconnect_count_max = 10;
 static char mqtt4_connect_url[] = "mqtt://admin:123456@act.jiawei.xin:1883";
 
+static esp_mqtt_client_handle_t client;
+
+static int is_start_mqtt = 1;
 static void log_error_if_nonzero(const char *message, int error_code)
 {
 	if (error_code != 0)
@@ -49,6 +55,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	switch ((esp_mqtt_event_id_t)event_id)
 	{
 	case MQTT_EVENT_CONNECTED:
+		mqtt_disconnect_count = 0;
 		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
 		msg_id = esp_mqtt_client_publish(client, "online", response_s, 0, 1, 0);
 		ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
@@ -64,7 +71,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		
 		break;
 	case MQTT_EVENT_DISCONNECTED:
-		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+		++mqtt_disconnect_count;
+		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED, count:%d", mqtt_disconnect_count);
+		if (mqtt_disconnect_count == mqtt_disconnect_count_max)
+		{
+			esp_restart();
+		}
 		break;
 
 	case MQTT_EVENT_SUBSCRIBED:
@@ -150,12 +162,13 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 			free(c_data);
 		}
 		msg_id = esp_mqtt_client_publish(client, "esp32_response", response, 0, 0, 0);
-		printf("sent sys info successful, msg_id=%d, resp: %s\r\n", msg_id, response);
+		extern int debug;
+		if(debug) printf("sent sys info successful, msg_id=%d, resp: %s\r\n", msg_id, response);
 		//free(response);
 		led_blink();
 		break;
 	case MQTT_EVENT_ERROR:
-		ESP_LOGI(TAG, "MQTT_EVENT_ERRbOR");
+		ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
 		if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
 		{
 			log_error_if_nonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
@@ -171,13 +184,26 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	print_free_heap();
 }
 
-void mqtt_app_start(void)
+void mqtt_app_start()
 {
+	if (!is_start_mqtt)
+	{
+		return ;
+	}
 	esp_mqtt_client_config_t mqtt_cfg = {
-		.broker.address.uri = mqtt4_connect_url};
+		.broker.address.uri = mqtt4_connect_url,
+		.task.priority = 10,
+		.task.stack_size = 10240,
+		.network.refresh_connection_after_ms = 55000
+		};
 
-	esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+	client = esp_mqtt_client_init(&mqtt_cfg);
 	/* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
 	esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 	esp_mqtt_client_start(client);
 }
+
+void mqtt_app_destroy() {
+	is_start_mqtt = 0;
+	esp_mqtt_client_destroy(client);// 没必要
+	}

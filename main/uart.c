@@ -8,7 +8,7 @@
 // Note: Some pins on target chip cannot be assigned for UART communication.
 // Please refer to documentation for selected board and target to configure pins using Kconfig.
 #define ECHO_TEST_TXD (9)
-#define ECHO_TEST_RXD (8)
+#define ECHO_TEST_RXD (10)
 
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS (UART_PIN_NO_CHANGE)
@@ -34,19 +34,25 @@ typedef unsigned char byte;
 static int loop = 1;
 // 循环计数
 static int loop_count = 0;
-static char ddsu666_params[8] = {0x01, 0x03, 0x20, 0x00, 0x00, 0x08, 0x00, 0x00};
-static char ddsu666_Ep[8] = {0x01, 0x03, 0x40, 0x00, 0x00, 0x01, 0x00, 0x00};
+static char ddsu666_params[8] = {0x01, 0x03, 0x20, 0x00, 0x00, 0x12, 0x00, 0x00};
+static char ddsu666_Ep[8] = {0x01, 0x03, 0x40, 0x00, 0x00, 0x02, 0x00, 0x00};
 static char ddsu666_clean_total_engery[11] = {0x01, 0x10, 0x00, 0x02, 0x00, 0x01, 0x02, 0x00, 0x01, 0x00, 0x00};
 
 float voltage = 0.0;
 float current = 0.0;
-float power = 0.0;
+float a_power = 0.0;
+float r_power = 0.0;
+float ap_power = 0.0;
+float power_factor = 0.0;
+float power_frequency = 0.0;
+
 float total_engery = 0.0;
 
 static uint8_t *data_rec_p;
 
 // 开机默认5秒一次循环, 300循环后为60秒一次循环
 static int rec_wait = 5;
+static int stable_rec_wait = 60;
 static int is_clear_total_engery = 0;
 extern int debug;
 
@@ -145,14 +151,20 @@ static void get_rec_data(uint8_t *data_rec_p, int data_rec_len)
 		}
 		if(debug)
 			printf("end\r\n");
-		if (data_rec_len == 21)
+		if (data_rec_len == 41)
 		{
 			float *voltage_p = &voltage;
 			float *current_p = &current;
-			float *power_p = &power;
-			print_ddsu666_params(hexArray, voltage_p, current_p, power_p);
+			float *a_power_p = &a_power;
+			float *r_power_p = &r_power;
+			float *ap_power_p = &ap_power;
+			float *power_factor_p = &power_factor;
+			float *power_frequency_p = &power_frequency;
+
+			print_ddsu666_params(hexArray, voltage_p, current_p, a_power_p, r_power_p,
+								 ap_power_p, power_factor_p, power_frequency_p);
 		}
-		if (data_rec_len == 7)
+		if (data_rec_len == 9)
 		{
 			float *total_engery_p = &total_engery;
 			print_ddsu666_total_energy(hexArray, total_engery_p);
@@ -202,7 +214,7 @@ void uart_loop(void *arg) {
 		if (loop_count == 10)
 		{
 			ESP_LOGI(TAG, "restore defult 60s loop");
-			change_rec_wait(30);
+			change_rec_wait(stable_rec_wait);
 		}
 		// 清除电能累计数据
 		if (is_clear_total_engery)
@@ -257,3 +269,11 @@ void change_rec_wait(int sec) {
 void set_is_clear_total_engery() {
 	is_clear_total_engery = 1;
 	}
+
+int get_loop_count() {
+	return loop_count;
+}
+
+int get_rec_wait() {
+	return rec_wait;
+}

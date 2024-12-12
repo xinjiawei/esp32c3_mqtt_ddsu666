@@ -11,6 +11,10 @@
 #include "esp_http_server.h"
 #include "esp_spiffs.h"
 #include "led.h"
+#include "uart.h"
+#include "mqtt4.h"
+
+#include "tools.h"
 
 /* FreeRTOS event group to signal when we are connected & ready to make a request */
 static EventGroupHandle_t s_wifi_event_group;
@@ -22,8 +26,8 @@ static const int CONNECTED_BIT = BIT0;
 static const int ESPTOUCH_DONE_BIT = BIT1;
 static const int WIFI_FAIL_BIT = BIT2;
 static int ESPTOUCH_TRY_CONNECT_BIT = 0;
-static const char *TAG = "wifi_connect";
-static const char *TAGTOUCH = "wifi_connect";
+static const char *TAG = "wifimanager";
+static const char *TAGTOUCH = "esp_touch_v1";
 
 static const int ESP_MAXINUM_RETRY = 2;
 static int s_retry_num = 0;
@@ -36,7 +40,10 @@ static void smartconfig_task(void *parm)
 {
 	EventBits_t uxBits;
 	ESP_ERROR_CHECK(esp_smartconfig_set_type(SC_TYPE_ESPTOUCH));
-	smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+	smartconfig_start_config_t cfg = {
+		.enable_log = true,
+		.esp_touch_v2_enable_crypt = false,
+		.esp_touch_v2_key = NULL};
 	ESP_ERROR_CHECK(esp_smartconfig_start(&cfg));
 	while (1)
 	{
@@ -58,7 +65,12 @@ static void smartconfig_task(void *parm)
 		{
 			ESP_LOGI(TAGTOUCH, "==WiFi esptouch smartconfig over");
 			esp_smartconfig_stop();
-			vTaskDelete(NULL);
+			
+			// vTaskDelete(NULL);// 因为重启, 这个没必要了
+			
+			// 由于串口任务和mqtt在配网期间手动停止, 所以通过重启来重启串口任务.
+			ESP_LOGW(TAG, "will restart");
+			esp_restart();
 		}
 	}
 }
@@ -103,10 +115,10 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 	else if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL)
 	{
 		ESP_LOGI(TAG, "Found channel");
+		led_loop(2);
 	}
 	else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD)
 	{
-		
 		ESP_LOGI(TAG, "Got SSID and password");
 
 		// set tag
@@ -150,7 +162,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 		ESP_ERROR_CHECK(esp_wifi_disconnect());
 		ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
 		
-		esp_wifi_connect();
+		esp_wifi_connect(); 
 	}
 	else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE)
 	{
@@ -224,10 +236,15 @@ bool wifi_start_ap() {
  *启动配网入口*/
 static void start_esptouch_v1(void)
 {
+  remove_rec_task(); // 不启动uart任务
+  mqtt_app_destroy(); // 不启动mqtt
+  // 配网的优先级应该是最高的
+  
 
-	xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 3, NULL);
+  //xTaskCreate(led_loop, "led_blink", 128, NULL, 32, NULL);
+  xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 102400, NULL);
 
-	ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
+  ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
 }
 
 /*

@@ -9,7 +9,8 @@
 #include "wifimanager.h"
 #include "ets_sys.h"
 #include "form_parser.h"
-#include "ir.h"
+#include "uart.h"
+//#include "ir.h"
 // #include "esp_heap_trace.h"
 
 static const char *TAG = "event handler";
@@ -122,10 +123,16 @@ void print_free_heap() {
   static char * get_power_info() {
       extern float voltage;
       extern float current;
-      extern float power;
+      extern float a_power;
+	  extern float r_power;
+	  extern float ap_power;
+	  extern float power_factor;
+	  extern float power_frequency;
       extern float total_engery;
 
-		#define RET_BUFFER_SIZE 128
+	  extern int debug;
+
+#define RET_BUFFER_SIZE 128
 		#define TMP_BUFFER_SIZE 64
 	  char ret_buffer[RET_BUFFER_SIZE];
 	  char *response = NULL;
@@ -133,13 +140,30 @@ void print_free_heap() {
 	  if (root == NULL) return NULL;
 	  
 	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fV", voltage);
-	  cJSON_AddStringToObject(root, "V", ret_buffer);
+	  cJSON_AddStringToObject(root, "volts", ret_buffer);
 	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.3fA", current);
-	  cJSON_AddStringToObject(root, "A", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", power*1000);
-	  cJSON_AddStringToObject(root, "P", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.2fkW", total_engery);
-	  cJSON_AddStringToObject(root, "E", ret_buffer);
+	  cJSON_AddStringToObject(root, "current", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", a_power*1000);
+	  cJSON_AddStringToObject(root, "ap", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", r_power*1000);
+	  cJSON_AddStringToObject(root, "rp", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", ap_power*1000);
+	  cJSON_AddStringToObject(root, "app", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.3f", power_factor);
+	  cJSON_AddStringToObject(root, "pf", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.2fHz", power_frequency);
+	  cJSON_AddStringToObject(root, "pfr", ret_buffer);
+
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.2fkWH", total_engery);
+	  cJSON_AddStringToObject(root, "total_e", ret_buffer);
+	  
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", get_loop_count());
+	  cJSON_AddStringToObject(root, "loop_count", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", get_rec_wait());
+	  cJSON_AddStringToObject(root, "rec_wait", ret_buffer);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", debug);
+	  cJSON_AddStringToObject(root, "debug", ret_buffer);
+	  
 	  response = cJSON_Print(root);
 	  cJSON_Delete(root);
 	  return response;
@@ -161,7 +185,8 @@ void print_free_heap() {
 	  break;  
   }
   strcpy(response_s, response);
-  ESP_LOGI(TAG, "key: %d, response: %s\r\n", key, response);
+  extern int debug;
+  if(debug) ESP_LOGI(TAG, "key: %d, response: %s\r\n", key, response);
   free(response);
   return ESP_OK;
 }
