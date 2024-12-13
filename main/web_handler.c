@@ -139,15 +139,15 @@ void print_free_heap() {
 	  cJSON *root = cJSON_CreateObject();
 	  if (root == NULL) return NULL;
 	  
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fV", voltage);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1f", voltage);
 	  cJSON_AddStringToObject(root, "volts", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.3fA", current);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.3f", current);
 	  cJSON_AddStringToObject(root, "current", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", a_power*1000);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1f", a_power*1000);
 	  cJSON_AddStringToObject(root, "ap", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", r_power*1000);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1f", r_power*1000);
 	  cJSON_AddStringToObject(root, "rp", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1fW", ap_power*1000);
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1f", ap_power*1000);
 	  cJSON_AddStringToObject(root, "app", ret_buffer);
 	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.3f", power_factor);
 	  cJSON_AddStringToObject(root, "pf", ret_buffer);

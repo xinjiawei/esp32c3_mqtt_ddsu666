@@ -1,4 +1,8 @@
 #include "tools.h"
+#include <stdio.h>
+#include <string.h>
+#include <sys/unistd.h>
+#include <sys/stat.h>
 #include "esp_err.h"
 #include "esp_mac.h"
 #include "esp_system.h"
@@ -13,8 +17,20 @@
 static const char *TAG = "tools";
 
 void filesys_init() {
-	ESP_ERROR_CHECK(nvs_flash_init());
-	esp_vfs_spiffs_conf_t conf = {.base_path = "/ddsu666",
+	// Initialize NVS.
+	esp_err_t err = nvs_flash_init();
+	if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+	{
+		// 1.OTA app partition table has a smaller NVS partition size than the non-OTA
+		// partition table. This size mismatch may cause NVS initialization to fail.
+		// 2.NVS partition contains data in new format and cannot be recognized by this version of code.
+		// If this happens, we erase NVS partition and initialize NVS again.
+		ESP_ERROR_CHECK(nvs_flash_erase());
+		err = nvs_flash_init();
+	}
+	ESP_ERROR_CHECK(err);
+	
+	esp_vfs_spiffs_conf_t conf = {.base_path = "/spiffs",
 								  .partition_label = "spiffs",
 								  .max_files = 5,
 								  .format_if_mount_failed = true};
@@ -38,6 +54,19 @@ void filesys_init() {
 		}
 		return;
 	}
+
+	ESP_LOGI(TAG, "Performing SPIFFS_check().");
+	ret = esp_spiffs_check(conf.partition_label);
+	if (ret != ESP_OK)
+	{
+		ESP_LOGE(TAG, "SPIFFS_check() failed (%s)", esp_err_to_name(ret));
+		return;
+	}
+	else
+	{
+		ESP_LOGI(TAG, "SPIFFS_check() successful");
+	}
+	
 	size_t total = 0, used = 0;
 	ret = esp_spiffs_info(conf.partition_label, &total, &used);
 	if (ret != ESP_OK)
@@ -52,6 +81,69 @@ void filesys_init() {
 	{
 		ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
 	}
+
+	// Check consistency of reported partition size info.
+	if (used > total)
+	{
+		ESP_LOGW(TAG, "Number of used bytes cannot be larger than total. Performing SPIFFS_check().");
+		ret = esp_spiffs_check(conf.partition_label);
+		// Could be also used to mend broken files, to clean unreferenced pages, etc.
+		// More info at https://github.com/pellepl/spiffs/wiki/FAQ#powerlosses-contd-when-should-i-run-spiffs_check
+		if (ret != ESP_OK)
+		{
+			ESP_LOGE(TAG, "SPIFFS_check() failed (%s)", esp_err_to_name(ret));
+			return;
+		}
+		else
+		{
+			ESP_LOGI(TAG, "SPIFFS_check() successful");
+		}
+	}
+}
+
+// 创建ota升级tag
+void create_ota_tag() {
+	// Check if destination file exists
+	struct stat st;
+	if (stat("/spiffs/ota.txt", &st) == 0)
+		return;
+
+	// Use POSIX and C standard library functions to work with files.
+	// First create a file.
+	ESP_LOGI(TAG, "crate ota tag file");
+	FILE *f = fopen("/spiffs/ota.txt", "w");
+	if (f == NULL)
+	{
+		ESP_LOGE(TAG, "Failed to open file for writing");
+		return;
+	}
+	fprintf(f, "1");
+	fclose(f);
+	ESP_LOGI(TAG, "File written");
+	esp_restart();
+}
+
+//移除ota升级tag
+void remove_ota_tag() {
+	// Check if destination file exists
+	struct stat st;
+	if (stat("/spiffs/ota.txt", &st) == 0)
+	{
+		// Delete it if it exists
+		unlink("/spiffs/ota.txt");
+	}
+}
+
+// 检查ota升级tag
+int is_exist_ota_tag()
+{
+	// Check if destination file exists
+	struct stat st;
+	if (stat("/spiffs/ota.txt", &st) == 0)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 char *get_len_str(char * original, int len) {

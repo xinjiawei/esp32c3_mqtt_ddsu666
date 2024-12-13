@@ -5,6 +5,10 @@
 #include <stdio.h>
 
 void filesys_init();
+void create_ota_tag();
+void remove_ota_tag();
+int is_exist_ota_tag();
+
 char *get_len_str(char *original, int len);
 char * get_chip_id();
 

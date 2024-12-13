@@ -20,7 +20,7 @@
 
 #include "esp_wifi.h"
 
-void wifi_init();
+void wifi_init(int *wifi_ok);
 void wifi_reset();
 bool wifi_start_ap();
 uint8_t wifi_scan_ap(wifi_ap_record_t *ap_infos, const uint8_t size);

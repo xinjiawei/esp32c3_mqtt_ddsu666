@@ -12,6 +12,7 @@
 #include "mqtt4.h"
 #include "tools.h"
 #include "uart.h"
+#include "ota.h"
 //#include "ir.h"
 //#include "esp_heap_trace.h"
 
@@ -19,6 +20,9 @@
 
 static const char *TAG = "main";
 int debug;
+
+const char * ota_url = "https://act.jiawei.xin/simple_ota.bin";
+const char * mqtt4_connect_url = "mqtt://admin:123456@act.jiawei.xin:1883";
 
 // #define NUM_RECORDS 10
 //static heap_trace_record_t trace_record[NUM_RECORDS]; // 该缓冲区必须在内部 RAM 中
@@ -44,7 +48,19 @@ void app_main(void)
 
 	led_configure();
 
-	wifi_init();
+	int wifi_ok = 0;
+	int *wifi_ok_tag = &wifi_ok;
+	wifi_init(wifi_ok_tag);
+
+	if (is_exist_ota_tag() == 1 && *wifi_ok_tag == 1)
+	{
+		mqtt_app_destroy();
+		remove_rec_task();
+		
+		remove_ota_tag();
+		ota_start();
+	}
+
 	mqtt_app_start();
 	
 	/*

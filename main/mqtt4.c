@@ -10,6 +10,7 @@
 #include "led.h"
 #include "web_handler.h"
 #include "uart.h"
+#include "ota.h"
 //#include "ir.h"
 // #include "esp_heap_trace.h"
 
@@ -19,7 +20,6 @@ char response_s[5120];
 static int mqtt_disconnect_count = 0;
 // mqtt允许的连续断开次数最大值
 const static int mqtt_disconnect_count_max = 10;
-static char mqtt4_connect_url[] = "mqtt://admin:123456@act.jiawei.xin:1883";
 
 static esp_mqtt_client_handle_t client;
 
@@ -124,6 +124,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 			{
 				esp_restart();
 			}
+			if (strcmp(c_data, "ota_update") == 0)
+			{
+				response = "ota update";
+				create_ota_tag();
+			}
+			
 			if (strcmp(c_data, "remove_uart_rec_task") == 0)
 			{
 				remove_rec_task();
@@ -190,6 +196,7 @@ void mqtt_app_start()
 	{
 		return ;
 	}
+	extern const char *mqtt4_connect_url;
 	esp_mqtt_client_config_t mqtt_cfg = {
 		.broker.address.uri = mqtt4_connect_url,
 		.task.priority = 10,

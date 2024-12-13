@@ -279,7 +279,7 @@ void wifi_reset() {
 
 /*
  *wifi连接初始化*/
-void wifi_init()
+void wifi_init(int *wifi_ok)
 {
 	s_wifi_event_group = xEventGroupCreate();
 	ESP_ERROR_CHECK(esp_netif_init());
@@ -300,10 +300,12 @@ void wifi_init()
 	{
 		ESP_LOGW(TAG, "connect wifi %s, %s error", sta_config.sta.ssid, sta_config.sta.password);
 		// wifi_start_ap();
+		*wifi_ok = 0;
 		start_esptouch_v1();
 	}
 	else
 	{
+		*wifi_ok = 1;
 		ESP_LOGI(TAG, "connected wifi %s, %s", sta_config.sta.ssid, sta_config.sta.password);
 	}
 }
