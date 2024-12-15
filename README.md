@@ -1,13 +1,5 @@
-## esp32c3 ddsu666 data transfer with mqtt
-~~~
-// 换到modbus
-// 算CS https://www.23bei.com/tool/205.html
-FE FE FE FE 68 48 89 09 19 08 21 68 14 0E 33 33 35 3D 35 33 33 33 33 33 33 33 33 33 E6 16
-参考教程: https://www.xingkongbeta.com/?p=272
-~~~
->
->  ddsu666电表, modbus交互数据格式参考: https://www.modbus.cn/10181.html
->
+# esp32c3 ddsu666 data transfer with mqtt
+
 ## 特征
 
 wifi:
@@ -38,20 +30,41 @@ ddsu666电表通讯:
 + 更改电表数据读取频率, 支持手动进入数据监听模式, 无监听续期, 会超时后进入休眠模式.
 
 ota升级：
-+ 一键重启进入升级模式.
-> 如果升级成功蓝色led闪烁5次.
++ 一键重启进入升级模式. 如果升级成功蓝色led闪烁5次.
 
 ## 使用
+
+### 准备
+
+> 配置好mqtt服务器, 可以使用公有云或者自己搭建.
+
+### 配置固件
 + 安装visualgdb
 + 编辑 Kconfig.projbuild文件, 填写自己的mqtt地址和ota地址, remake项目
 + build
 
+### 安装客户端
+推荐使用IoT MQTT Panel 客户端, 有安卓和ios客户端, 应用内支持定义自己的面板.
+这里分享我的面板配置文件,文件名为IoTMQTTPanel-241215_130105.json, 可以导入软件使用. 效果在尾图.
+
+### 其他接入
+向sysop-get的topic发送info-power即可获得数据, qos为0. 后续需要你自己开发.
+
 ## 已知的问题
 + mqtt订阅sysop-get的topic, 收到info-sys, 执行系统信息查询, 然后发布系统数据到esp32_response的topi. 这个过程有概率触发系统崩溃重启, 无法稳定复现问题. 如果系统重启后立刻操作有概率触发.
 
+## 笔记
 
-## 其他
-uint8转float的代码参考: https://github.com/gjtimms/Modbus-RTU-Listen
+~~~
+// 出厂的2007协议换到modbus协议
+// 算CS https://www.23bei.com/tool/205.html
+FE FE FE FE 68 48 89 09 19 08 21 68 14 0E 33 33 35 3D 35 33 33 33 33 33 33 33 33 33 E6 16
+// 参考教程: https://www.xingkongbeta.com/?p=272
+~~~
+>
+> ddsu666电表, modbus交互数据格式参考: https://www.modbus.cn/10181.html
+> uint8转float的代码参考: https://github.com/gjtimms/Modbus-RTU-Listen
+>
 
 ## 效果
 ![example](https://cf.mb6.top/lib/images/github/20241211/b00b9f9237d13798349b2a507c80cbb4.jpg)
