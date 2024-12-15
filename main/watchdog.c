@@ -13,13 +13,13 @@
 
 static const char *TAG = "watchdog";
 
-// 触发重启, 实测不需要menu打开CONFIG_ESP_TASK_WDT_INIT
+// 瑙﹀彂閲嶅惎, 瀹炴祴涓嶉渶瑕乵enu鎵撳紑CONFIG_ESP_TASK_WDT_INIT
 void esp_task_wdt_isr_user_handler(void)
 {
 	esp_restart();
 }
 
-// 初始化看门狗
+// 鍒濆鍖栫湅闂ㄧ嫍
 void task_watchdog_init()
 {
 	// If the TWDT was not initialized automatically on startup, manually intialize it now

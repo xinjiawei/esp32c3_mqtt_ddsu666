@@ -96,21 +96,22 @@ void uart_init()
 
 	// Set read timeout of UART TOUT feature
 	ESP_ERROR_CHECK(uart_set_rx_timeout(uart_num, ECHO_READ_TOUT));
-	
+
 	// Allocate buffers for UART rec
 	data_rec_p = (uint8_t *)malloc(sizeof(uint8_t) * BUF_SIZE);
-	
+
 	// 看门狗初始化
 	task_watchdog_init();
 }
 
 /*
  *串口发送信息*/
-static void uart_send(char data_p[],int len) {
+static void uart_send(char data_p[], int len)
+{
 
 	int crc = crc_cal(data_p, len - 2);
-	data_p[len-2] = crc & 0xFF;		  // 校验位低
-	data_p[len-1] = (crc & 0xFF00) >> 8; // 校验位高
+	data_p[len - 2] = crc & 0xFF;		   // 校验位低
+	data_p[len - 1] = (crc & 0xFF00) >> 8; // 校验位高
 
 	ESP_LOGI(TAG, "UART send len: %d", len);
 	if (debug)
@@ -134,7 +135,8 @@ static void uart_send(char data_p[],int len) {
 
 /*
  *串口接受信息*/
-static int uart_rec(uint8_t * data_rec_p) {
+static int uart_rec(uint8_t *data_rec_p)
+{
 	// Read data from UART
 	return uart_read_bytes(uart_num, data_rec_p, sizeof(uint8_t) * BUF_SIZE, PACKET_READ_TICS);
 }
@@ -158,7 +160,7 @@ static void get_rec_data(uint8_t *data_rec_p, int data_rec_len)
 			}
 			hexArray[i] = byte_i;
 		}
-		if(debug)
+		if (debug)
 			printf("end\r\n");
 		if (data_rec_len == 41)
 		{
@@ -214,17 +216,18 @@ static void clear_total_engery()
 }
 
 /*循环函数*/
-void uart_loop(void *arg) {
-	
+void uart_loop(void *arg)
+{
+
 	// Subscribe this task to TWDT, then check if it is subscribed
 	ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
 	ESP_ERROR_CHECK(esp_task_wdt_status(NULL));
 	ESP_LOGI(dogTAG, "Subscribed to TWDT\n");
-	
+
 	ESP_LOGI(TAG, "UART send.\r");
-	
+
 	// 以下为了配合看门狗喂狗时间10秒限制进行更改.
-	
+
 	// 基准循环, 每秒+1;
 	int inner_loop = 0;
 	while (loop)
@@ -277,8 +280,9 @@ void uart_loop(void *arg) {
 			if (debug)
 				printf("^^^^^^^^\r\n");
 		}
-		else ++inner_loop;
-			
+		else
+			++inner_loop;
+
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 	// 停止循环删除任务
@@ -296,31 +300,37 @@ void uart_loop(void *arg) {
 
 /*
  *删除串口循环任务*/
-void remove_rec_task() {
+void remove_rec_task()
+{
 	loop = 0;
 }
 
 /*
  *更改循环等待时间*/
-void change_rec_wait(int sec) {
-	
+void change_rec_wait(int sec)
+{
+
 	loop_count = 0;
 	rec_wait = sec;
 }
 /*
  *清除累计电量*/
-void set_is_clear_total_engery() {
+void set_is_clear_total_engery()
+{
 	is_clear_total_engery = 1;
-	}
+}
 
-int get_loop_count() {
+int get_loop_count()
+{
 	return loop_count;
 }
 
-int get_rec_wait() {
+int get_rec_wait()
+{
 	return rec_wait;
 }
 
-int get_uart_tx_rx_timestamp() {
+int get_uart_tx_rx_timestamp()
+{
 	return uart_tx_rx_timestamp;
 }

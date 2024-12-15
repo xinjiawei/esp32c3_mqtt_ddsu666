@@ -8,11 +8,9 @@
 */
 #include "wifimanager.h"
 
-#include "esp_http_server.h"
-#include "esp_spiffs.h"
 #include "led.h"
-#include "uart.h"
 #include "mqtt4.h"
+#include "uart.h"
 
 #include "tools.h"
 
@@ -65,9 +63,9 @@ static void smartconfig_task(void *parm)
 		{
 			ESP_LOGI(TAGTOUCH, "==WiFi esptouch smartconfig over");
 			esp_smartconfig_stop();
-			
+
 			// vTaskDelete(NULL);// 因为重启, 这个没必要了
-			
+
 			// 由于串口任务和mqtt在配网期间手动停止, 所以通过重启来重启串口任务.
 			ESP_LOGW(TAG, "will restart");
 			esp_restart();
@@ -91,7 +89,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 		{
 			esp_wifi_connect();
 			vTaskDelay(200 / portTICK_PERIOD_MS);
-			ESP_LOGI(TAG, "retry to connect to the AP,  %d times try", s_retry_num+1);
+			ESP_LOGI(TAG, "retry to connect to the AP,  %d times try", s_retry_num + 1);
 			s_retry_num++;
 		}
 		else
@@ -161,8 +159,8 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 
 		ESP_ERROR_CHECK(esp_wifi_disconnect());
 		ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-		
-		esp_wifi_connect(); 
+
+		esp_wifi_connect();
 	}
 	else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE)
 	{
@@ -210,40 +208,40 @@ static bool wifi_connect_to_ap(const char *ssid, const char *password)
 
 /*
  *启动ap模式*/
-bool wifi_start_ap() {
-  char ssid[32];
-  snprintf(ssid, 52, "esp32c3");
-  wifi_config_t wifi_config = {
-					.ap = {
-						.ssid_len = strlen(ssid),
-						.channel = 11,
-						.password = "",
-						.max_connection = 2,
-						.authmode = WIFI_AUTH_OPEN,
-						.pmf_cfg = {
-							.required = true,
-						}
-                    },
-  };
-  strcpy((char *)wifi_config.ap.ssid, ssid);
-  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-  ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
-  ESP_ERROR_CHECK(esp_wifi_start());
-  return true;
+bool wifi_start_ap()
+{
+	char ssid[32];
+	snprintf(ssid, 52, "esp32c3");
+	wifi_config_t wifi_config = {
+		.ap = {
+			.ssid_len = strlen(ssid),
+			.channel = 11,
+			.password = "",
+			.max_connection = 2,
+			.authmode = WIFI_AUTH_OPEN,
+			.pmf_cfg = {
+				.required = true,
+			}},
+	};
+	strcpy((char *)wifi_config.ap.ssid, ssid);
+	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+	ESP_ERROR_CHECK(esp_wifi_start());
+	return true;
 }
 
 /*
  *启动配网入口*/
 static void start_esptouch_v1(void)
 {
-  remove_rec_task(); // 不启动uart任务
-  mqtt_app_destroy(); // 不启动mqtt
-  // 配网的优先级应该是最高的
+	remove_rec_task();	// 不启动uart任务
+	mqtt_app_destroy(); // 不启动mqtt
+	// 配网的优先级应该是最高的
 
-  // 优先级最大为24
-  xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 24, NULL);
+	// 优先级最大为24
+	xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 24, NULL);
 
-  ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
+	ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
 }
 
 /*
@@ -264,12 +262,12 @@ uint8_t wifi_scan_ap(wifi_ap_record_t *ap_infos, const uint8_t size)
 }
 /*
  *wifi重置*/
-void wifi_reset() {
+void wifi_reset()
+{
 	ESP_LOGW(TAG, "reset wifi, will restart and auto esptouch");
 	wifi_config_t sta_config = {
 		.sta.ssid = "",
-		.sta.password = ""
-};
+		.sta.password = ""};
 
 	ESP_ERROR_CHECK(esp_wifi_disconnect());
 	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config));

@@ -5,8 +5,8 @@
  */
 #pragma once
 
-#include <stdint.h>
 #include "driver/rmt_encoder.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,16 +15,18 @@ extern "C" {
 /**
  * @brief IR NEC scan code representation
  */
-typedef struct {
-    uint16_t address;
-    uint16_t command;
+typedef struct
+{
+	uint16_t address;
+	uint16_t command;
 } ir_nec_scan_code_t;
 
 /**
  * @brief Type of IR NEC encoder configuration
  */
-typedef struct {
-    uint32_t resolution; /*!< Encoder resolution, in Hz */
+typedef struct
+{
+	uint32_t resolution; /*!< Encoder resolution, in Hz */
 } ir_nec_encoder_config_t;
 
 /**

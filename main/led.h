@@ -1,3 +1,9 @@
 #pragma once
+#include "driver/gpio.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
+#include <stdio.h>
 void led_configure(void);
 void led_blink(void);

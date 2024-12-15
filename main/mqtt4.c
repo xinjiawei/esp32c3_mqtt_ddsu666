@@ -1,18 +1,13 @@
 #include "mqtt4.h"
-#include "esp_event.h"
-#include "esp_system.h"
-#include "esp_log.h"
-#include "mqtt_client.h"
 
-#include "tools.h"
-#include "wifimanager.h"
 #include "led.h"
-#include "web_handler.h"
-#include "uart.h"
 #include "ota.h"
-//#include "ir.h"
-// #include "esp_heap_trace.h"
-
+#include "tools.h"
+#include "uart.h"
+#include "web_handler.h"
+#include "wifimanager.h"
+// #include "ir.h"
+//  #include "esp_heap_trace.h"
 
 static const char *TAG = "mqtt";
 char response_s[5120];
@@ -46,7 +41,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	char *chip_id = get_chip_id();
 	snprintf(response_s, 52, "esp32_%s", chip_id);
 	free(chip_id);
-	
+
 	ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
 	esp_mqtt_event_handle_t event = event_data;
 	esp_mqtt_client_handle_t client = event->client;
@@ -59,15 +54,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		msg_id = esp_mqtt_client_publish(client, "online", response_s, 0, 0, 0);
 		ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
-		//msg_id = esp_mqtt_client_subscribe(client, "dht20", 0);
-		//ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+		// msg_id = esp_mqtt_client_subscribe(client, "dht20", 0);
+		// ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
 		msg_id = esp_mqtt_client_subscribe(client, "sysop-get", 0);
 		ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
 
 		msg_id = esp_mqtt_client_subscribe(client, "sysop-set", 0);
 		ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-		
+
 		break;
 	case MQTT_EVENT_DISCONNECTED:
 		++mqtt_disconnect_count;
@@ -81,7 +76,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	case MQTT_EVENT_SUBSCRIBED:
 		ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
 		// msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
-		//ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+		// ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 		break;
 	case MQTT_EVENT_UNSUBSCRIBED:
 		ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
@@ -133,7 +128,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 				response = "ota update";
 				create_ota_tag();
 			}
-			
+
 			if (strcmp(c_data, "remove_uart_rec_task") == 0)
 			{
 				remove_rec_task();
@@ -167,14 +162,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 				{
 					response = "debug_mode on";
 				}
-				else response = "debug_mode off";
+				else
+					response = "debug_mode off";
 			}
 			free(c_data);
 		}
 		msg_id = esp_mqtt_client_publish(client, "esp32_response", response, 0, 0, 1);
 		extern int debug;
-		if(debug) printf("sent sys info successful, msg_id=%d, resp: %s\r\n", msg_id, response);
-		//free(response);
+		if (debug)
+			printf("sent sys info successful, msg_id=%d, resp: %s\r\n", msg_id, response);
+		// free(response);
 		led_blink();
 		break;
 	case MQTT_EVENT_ERROR:
@@ -198,15 +195,15 @@ void mqtt_app_start()
 {
 	if (!is_start_mqtt)
 	{
-		return ;
+		return;
 	}
 	extern const char *mqtt4_connect_url;
 	esp_mqtt_client_config_t mqtt_cfg = {
 		.broker.address.uri = mqtt4_connect_url,
 		.task.priority = 10,
 		.task.stack_size = 10240,
-		.network.refresh_connection_after_ms = 55000
-		};
+		.network.refresh_connection_after_ms = 55000 // 55秒刷新连接
+	};
 
 	client = esp_mqtt_client_init(&mqtt_cfg);
 	/* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
@@ -214,7 +211,8 @@ void mqtt_app_start()
 	esp_mqtt_client_start(client);
 }
 
-void mqtt_app_destroy() {
+void mqtt_app_destroy()
+{
 	is_start_mqtt = 0;
-	esp_mqtt_client_destroy(client);// 没必要
-	}
+	esp_mqtt_client_destroy(client); // 没必要
+}

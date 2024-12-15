@@ -361,7 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/main/Kconfig.projbuild
 .visualgdb/
-/sdkconfig
-/sdkconfig

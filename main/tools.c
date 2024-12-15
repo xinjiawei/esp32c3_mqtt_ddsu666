@@ -1,19 +1,11 @@
 #include "tools.h"
-#include "esp_err.h"
-#include "esp_mac.h"
-#include "esp_system.h"
-#include "esp_spiffs.h"
-#include "nvs_flash.h"
-#include "esp_system.h"
-#include "esp_event.h"
-#include "esp_log.h"
-#include "esp_task_wdt.h"
 
 #include "led.h"
 
 static const char *TAG = "tools";
 
-void filesys_init() {
+void filesys_init()
+{
 	// Initialize NVS.
 	esp_err_t err = nvs_flash_init();
 	if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
@@ -26,7 +18,7 @@ void filesys_init() {
 		err = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK(err);
-	
+
 	esp_vfs_spiffs_conf_t conf = {.base_path = "/spiffs",
 								  .partition_label = "spiffs",
 								  .max_files = 5,
@@ -63,7 +55,7 @@ void filesys_init() {
 	{
 		ESP_LOGI(TAG, "SPIFFS_check() successful");
 	}
-	
+
 	size_t total = 0, used = 0;
 	ret = esp_spiffs_info(conf.partition_label, &total, &used);
 	if (ret != ESP_OK)
@@ -99,7 +91,8 @@ void filesys_init() {
 }
 
 // 创建ota升级tag
-void create_ota_tag() {
+void create_ota_tag()
+{
 	// Check if destination file exists
 	struct stat st;
 	if (stat("/spiffs/ota.txt", &st) == 0)
@@ -120,8 +113,9 @@ void create_ota_tag() {
 	esp_restart();
 }
 
-//移除ota升级tag
-void remove_ota_tag() {
+// 移除ota升级tag
+void remove_ota_tag()
+{
 	// Check if destination file exists
 	struct stat st;
 	if (stat("/spiffs/ota.txt", &st) == 0)
@@ -143,11 +137,12 @@ int is_exist_ota_tag()
 	return 0;
 }
 
-char *get_len_str(char * original, int len) {
+char *get_len_str(char *original, int len)
+{
 	char *dest = (char *)calloc(sizeof(char), (++len));
 	snprintf(dest, len, "%s", original);
 	dest[len] = '\0';
-	//strncpy(dest, original, len);
+	// strncpy(dest, original, len);
 	return dest;
 }
 /*
@@ -168,7 +163,8 @@ char *get_chip_id()
 
 /*
  *打印系统信息*/
-void print_sys_info() {
+void print_sys_info()
+{
 	printf("\n\n------ Get Systrm Info------\n");
 	// 获取IDF版本
 	printf("SDK version:%s\n", esp_get_idf_version());
@@ -276,7 +272,8 @@ float float_from_8hex(int arr[])
  *解析电表电量数据*/
 void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile float *current,
 						  volatile float *a_power, volatile float *r_power, volatile float *ap_power,
-						  volatile float *power_factor, volatile float *power_frequency) {
+						  volatile float *power_factor, volatile float *power_frequency)
+{
 	uint8_t ptr;
 	int ints_4[4];
 	// int data_len = sizeof(bytes);
@@ -287,22 +284,22 @@ void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile flo
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float v = float_from_8hex(ints_4);   // Decode the 4 byte single precision float
-	printf("Volts = %f\r\n", v); // Log converted float value (optional).
+	float v = float_from_8hex(ints_4); // Decode the 4 byte single precision float
+	printf("Volts = %f\r\n", v);	   // Log converted float value (optional).
 	*voltage = v;
 
 	// A 相电流
-	ptr = 7;								   // Point to current data
+	ptr = 7; // Point to current data
 	for (int z = 0; z < 4; z++)
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float c = float_from_8hex(ints_4);	 // Decode the 4 byte single precision float
-	printf("Current = %f\r\n", c); // Log converted float value (optional).
+	float c = float_from_8hex(ints_4); // Decode the 4 byte single precision float
+	printf("Current = %f\r\n", c);	   // Log converted float value (optional).
 	*current = c;
 
 	// 总有功功率
-	ptr = 11;									 // Point to power data
+	ptr = 11; // Point to power data
 	for (int z = 0; z < 4; z++)
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
@@ -317,8 +314,8 @@ void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile flo
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float rp = float_from_8hex(ints_4); // Decode the 4 byte single precision float
-	printf("reactive power = %f\r\n", rp);	   // Log converted float value (optional).
+	float rp = float_from_8hex(ints_4);	   // Decode the 4 byte single precision float
+	printf("reactive power = %f\r\n", rp); // Log converted float value (optional).
 	*r_power = rp;
 
 	// 总视在功率
@@ -327,7 +324,7 @@ void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile flo
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float ap_p = float_from_8hex(ints_4);	   // Decode the 4 byte single precision float
+	float ap_p = float_from_8hex(ints_4);	 // Decode the 4 byte single precision float
 	printf("apparent power = %f\r\n", ap_p); // Log converted float value (optional).
 	*ap_power = ap_p;
 
@@ -337,8 +334,8 @@ void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile flo
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float p_f = float_from_8hex(ints_4); // Decode the 4 byte single precision float
-	printf("power factor = %f\r\n", p_f);   // Log converted float value (optional).
+	float p_f = float_from_8hex(ints_4);  // Decode the 4 byte single precision float
+	printf("power factor = %f\r\n", p_f); // Log converted float value (optional).
 	*power_factor = p_f;
 
 	// 电网频率
@@ -347,15 +344,15 @@ void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile flo
 	{
 		ints_4[z] = bytes[ptr + z]; // Copy 4 bytes from vector array to int array
 	}
-	float p_fr = float_from_8hex(ints_4); // Decode the 4 byte single precision float
-	printf("power frequency = %f\r\n", p_fr);   // Log converted float value (optional).
+	float p_fr = float_from_8hex(ints_4);	  // Decode the 4 byte single precision float
+	printf("power frequency = %f\r\n", p_fr); // Log converted float value (optional).
 	*power_frequency = p_fr;
-	
 }
 
 /*
  *解析电表累计电量数据*/
-void print_ddsu666_total_energy(uint8_t bytes[], volatile float *total_energy) {
+void print_ddsu666_total_energy(uint8_t bytes[], volatile float *total_energy)
+{
 	uint8_t ptr;
 	int ints_4[4];
 	ptr = 3; // Point to total incoming energy data
@@ -370,18 +367,18 @@ void print_ddsu666_total_energy(uint8_t bytes[], volatile float *total_energy) {
 
 /*
  *切换debug 模式*/
-void debug_switch() {
+void debug_switch()
+{
 	extern int debug;
 	debug = !debug;
 	printf("debug mode is %d\r\n", debug);
 }
 
-void led_loop(int times) {
+void led_loop(int times)
+{
 	for (int i = 0; i < times; i++)
 	{
 		led_blink();
 		vTaskDelay(200 / portTICK_PERIOD_MS);
 	}
-
-
 }

@@ -5,6 +5,14 @@
 #include <stdio.h>
 #include <sys/unistd.h>
 #include <sys/stat.h>
+#include "esp_err.h"
+#include "esp_event.h"
+#include "esp_log.h"
+#include "esp_mac.h"
+#include "esp_spiffs.h"
+#include "esp_system.h"
+#include "esp_task_wdt.h"
+#include "nvs_flash.h"
 
 void filesys_init();
 void create_ota_tag();

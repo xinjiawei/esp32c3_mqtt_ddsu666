@@ -8,15 +8,14 @@
 #include "esp_netif.h"
 #include "driver/temperature_sensor.h"
 
-
 #include "led.h"
 #include "wifimanager.h"
 #include "mqtt4.h"
 #include "tools.h"
 #include "uart.h"
 #include "ota.h"
-//#include "ir.h"
-//#include "esp_heap_trace.h"
+// #include "ir.h"
+// #include "esp_heap_trace.h"
 
 #define ECHO_TASK_STACK_SIZE (3072)
 
@@ -28,13 +27,13 @@ const char *ota_url = CONFIG_DDSU666_OTA;
 const char *mqtt4_connect_url = CONFIG_DDSU666_MQTT;
 
 // #define NUM_RECORDS 10
-//static heap_trace_record_t trace_record[NUM_RECORDS]; // 该缓冲区必须在内部 RAM 中
+// static heap_trace_record_t trace_record[NUM_RECORDS]; // 该缓冲区必须在内部 RAM 中
 
 void app_main(void)
 {
-	//debug
+	// debug
 	debug = 0;
-	//heap_trace_init_standalone(trace_record, NUM_RECORDS);
+	// heap_trace_init_standalone(trace_record, NUM_RECORDS);
 
 	ESP_ERROR_CHECK(esp_netif_init());
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -64,13 +63,13 @@ void app_main(void)
 	{
 		mqtt_app_destroy();
 		remove_rec_task();
-		
+
 		remove_ota_tag();
 		ota_start();
 	}
 
 	mqtt_app_start();
-	
+
 	/*
 	nec_tx_init();
 	nec_rx_init();
@@ -81,7 +80,7 @@ void app_main(void)
 	};
 	nec_tx(scan_code);
 	*/
-	
+
 	uart_init();
 	xTaskCreate(uart_loop, "uart_get_data_task", ECHO_TASK_STACK_SIZE, NULL, 10, NULL);
 }
