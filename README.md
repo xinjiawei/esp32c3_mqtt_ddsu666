@@ -45,6 +45,8 @@ ota升级：
 
 ### 安装客户端
 推荐使用IoT MQTT Panel 客户端, 有安卓和ios客户端, 应用内支持定义自己的面板.
+安卓下载: https://play.google.com/store/apps/details?id=snr.lab.iotmqttpanel.prod
+ios下载: https://apps.apple.com/cn/app/iot-mqtt-panel/id6466780124
 这里分享我的面板配置文件,文件名为IoTMQTTPanel-241215_130105.json, 可以导入软件使用. 效果在尾图.
 
 ### 其他接入
