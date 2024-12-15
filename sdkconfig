@@ -449,8 +449,8 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # Example Configuration
 #
-CONFIG_DDSU666_MQTT="mqtt://admin:447797839@act.jiawei.xin:18830"
-CONFIG_DDSU666_OTA="https://act.jiawei.xin:10086/lib/firmware/esp32c3_mqtt_ddsu666.bin"
+CONFIG_DDSU666_MQTT="mqtt://admin:123456@act.jiawei.xin:1883"
+CONFIG_DDSU666_OTA="https://act.jiawei.xin:10086/485/firmware/esp32c3_mqtt_ddsu666.bin"
 # end of Example Configuration
 
 #
