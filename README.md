@@ -41,6 +41,14 @@ ota升级：
 + 一键重启进入升级模式.
 > 如果升级成功蓝色led闪烁5次.
 
+## 使用
++ 安装visualgdb
++ 编辑 Kconfig.projbuild文件, 填写自己的mqtt地址和ota地址, remake项目
++ build
+
+## 已知的问题
++ mqtt订阅sysop-get的topic, 收到info-sys, 执行系统信息查询, 然后发布系统数据到esp32_response的topi. 这个过程有概率触发系统崩溃重启, 无法稳定复现问题. 如果系统重启后立刻操作有概率触发.
+
 
 ## 其他
 uint8转float的代码参考: https://github.com/gjtimms/Modbus-RTU-Listen
