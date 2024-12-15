@@ -48,10 +48,10 @@ ota升级：
 这里分享我的面板配置文件,文件名为IoTMQTTPanel-241215_130105.json, 可以导入软件使用. 效果在尾图.
 
 ### 其他接入
-向sysop-get的topic发送info-power即可获得数据, qos为0. 后续需要你自己开发.
+先订阅esp32_response这个topic, 然后向sysop-get的topic发送info-power, qos为0, 即可获得数据. 后续流程需要自己定制.
 
 ## 已知的问题
-+ mqtt订阅sysop-get的topic, 收到info-sys, 执行系统信息查询, 然后发布系统数据到esp32_response的topi. 这个过程有概率触发系统崩溃重启, 无法稳定复现问题. 如果系统重启后立刻操作有概率触发.
++ mqtt订阅sysop-get的topic, 收到info-sys, 执行系统信息查询, 然后发布系统数据到esp32_response的topic. 这个过程有概率触发系统崩溃重启, 无法稳定复现问题. 如果首次启动系统后立刻操作有概率触发.
 
 ## 笔记
 
