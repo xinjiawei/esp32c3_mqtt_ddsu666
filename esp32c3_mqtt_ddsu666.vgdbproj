@@ -67,8 +67,8 @@
       <EnableFastUpToDateCheck>true</EnableFastUpToDateCheck>
       <ESPIDFExtension>
         <IDFCheckout>
-          <Version>v5.3.1</Version>
-          <Subdirectory>esp-idf/v5.3.1</Subdirectory>
+          <Version>v5.3.2</Version>
+          <Subdirectory>esp-idf/v5.3.2</Subdirectory>
           <Type>ESPIDF</Type>
         </IDFCheckout>
         <COMPort>COM8</COMPort>
