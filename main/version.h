@@ -1,10 +1,6 @@
-/*
- * @Author: Caffreyfans
- * @Date: 2021-06-26 20:40:32
- * @LastEditTime: 2021-06-26 20:41:43
- * @Description: 
- */
+#pragma once
+#include <stdio.h>
 #ifndef VERSION_H_
 #define VERSION_H_
-#define CORE_VERSION "0.1"
+#define CORE_VERSION (__TIME__ "-a")
 #endif // VERSION_H_

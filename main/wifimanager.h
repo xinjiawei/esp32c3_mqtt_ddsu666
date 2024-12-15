@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WIFI_MANAGER_H_
 #define WIFI_MANAGER_H_
 #include <stdbool.h>

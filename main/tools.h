@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/unistd.h>
+#include <sys/stat.h>
 
 void filesys_init();
 void create_ota_tag();
@@ -16,9 +18,9 @@ void print_sys_info();
 unsigned int crc_cal(const char *pBuff, int len);
 
 float float_from_8hex(int arr[]);
-void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current,
-						  float *a_power, float *r_power, float *ap_power,
-						  float *power_factor, float *power_frequency);
-void print_ddsu666_total_energy(uint8_t bytes[], float *total_energy);
+void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile float *current,
+						  volatile float *a_power, volatile float *r_power, volatile float *ap_power,
+						  volatile float *power_factor, volatile float *power_frequency);
+void print_ddsu666_total_energy(uint8_t bytes[], volatile float *total_energy);
 void debug_switch();
 void led_loop(int times);

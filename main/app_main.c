@@ -4,7 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sdkconfig.h"
 #include "esp_netif.h"
+#include "driver/temperature_sensor.h"
 
 
 #include "led.h"
@@ -19,10 +21,11 @@
 #define ECHO_TASK_STACK_SIZE (3072)
 
 static const char *TAG = "main";
-int debug;
+volatile int debug;
+temperature_sensor_handle_t temp_handle = NULL;
 
-const char * ota_url = "https://act.jiawei.xin/simple_ota.bin";
-const char * mqtt4_connect_url = "mqtt://admin:123456@act.jiawei.xin:1883";
+const char *ota_url = CONFIG_DDSU666_OTA;
+const char *mqtt4_connect_url = CONFIG_DDSU666_MQTT;
 
 // #define NUM_RECORDS 10
 //static heap_trace_record_t trace_record[NUM_RECORDS]; // 该缓冲区必须在内部 RAM 中
@@ -48,6 +51,11 @@ void app_main(void)
 
 	led_configure();
 
+	// 初始化片上温度传感器
+	temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(-30, 50);
+	ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &temp_handle));
+
+	// wifi 初始化完成tag
 	int wifi_ok = 0;
 	int *wifi_ok_tag = &wifi_ok;
 	wifi_init(wifi_ok_tag);

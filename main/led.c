@@ -21,7 +21,7 @@ static void blink_led(const uint32_t s_led_state)
 }
 
 /*
- *led³õÊ¼»¯*/
+ *ledåˆå§‹åŒ–*/
 void led_configure(void)
 {
 	ESP_LOGI(TAG, "configured to blink GPIO LED!");
@@ -31,7 +31,7 @@ void led_configure(void)
 }
 
 /*
- *ledÉÁË¸*/
+ *ledé—ªçƒ*/
 void led_blink(void)
 {
 	blink_led(0);

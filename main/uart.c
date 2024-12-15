@@ -1,9 +1,11 @@
 #include "uart.h"
 #include "tools.h"
+#include "watchdog.h"
 /**
  * This is a example which echos any data it receives on UART back to the sender using RS485 interface in half duplex mode.
  */
-#define TAG "RS485_uart"
+static const char *TAG = "RS485_uart";
+static const char *dogTAG = "watchdog";
 
 // Note: Some pins on target chip cannot be assigned for UART communication.
 // Please refer to documentation for selected board and target to configure pins using Kconfig.
@@ -29,34 +31,38 @@
 
 const static int uart_num = ECHO_UART_PORT;
 typedef unsigned char byte;
-
-// Ñ­»·¿ª¹Ø
-static int loop = 1;
-// Ñ­»·¼ÆÊı
-static int loop_count = 0;
 static char ddsu666_params[8] = {0x01, 0x03, 0x20, 0x00, 0x00, 0x12, 0x00, 0x00};
 static char ddsu666_Ep[8] = {0x01, 0x03, 0x40, 0x00, 0x00, 0x02, 0x00, 0x00};
 static char ddsu666_clean_total_engery[11] = {0x01, 0x10, 0x00, 0x02, 0x00, 0x01, 0x02, 0x00, 0x01, 0x00, 0x00};
 
-float voltage = 0.0;
-float current = 0.0;
-float a_power = 0.0;
-float r_power = 0.0;
-float ap_power = 0.0;
-float power_factor = 0.0;
-float power_frequency = 0.0;
+volatile float voltage = 0.0;
+volatile float current = 0.0;
+volatile float a_power = 0.0;
+volatile float r_power = 0.0;
+volatile float ap_power = 0.0;
+volatile float power_factor = 0.0;
+volatile float power_frequency = 0.0;
 
-float total_engery = 0.0;
+volatile float total_engery = 0.0;
 
 static uint8_t *data_rec_p;
-
-// ¿ª»úÄ¬ÈÏ5ÃëÒ»´ÎÑ­»·, 300Ñ­»·ºóÎª60ÃëÒ»´ÎÑ­»·
-static int rec_wait = 5;
-static int stable_rec_wait = 60;
+// é‡ç½®ç”µèƒ½è®¡é‡ä½
 static int is_clear_total_engery = 0;
-extern int debug;
+static volatile int uart_tx_rx_timestamp = 0;
+extern volatile int debug;
 
-// ´®¿Ú³õÊ¼»¯
+// å¾ªç¯å¼€å…³
+static int loop = 1;
+// å¾ªç¯è®¡æ•°
+static volatile int loop_count = 0;
+// å¼€æœºé»˜è®¤5ç§’ä¸€æ¬¡å¾ªç¯
+static int rec_wait = 5;
+// 300å¾ªç¯åä¸º60ç§’ä¸€æ¬¡å¾ªç¯
+static int stable_rec_wait = 60;
+
+static int temp_max_loop = 300;
+
+// ä¸²å£åˆå§‹åŒ–
 void uart_init()
 {
 	uart_config_t uart_config = {
@@ -93,15 +99,18 @@ void uart_init()
 	
 	// Allocate buffers for UART rec
 	data_rec_p = (uint8_t *)malloc(sizeof(uint8_t) * BUF_SIZE);
+	
+	// çœ‹é—¨ç‹—åˆå§‹åŒ–
+	task_watchdog_init();
 }
 
 /*
- *´®¿Ú·¢ËÍĞÅÏ¢*/
+ *ä¸²å£å‘é€ä¿¡æ¯*/
 static void uart_send(char data_p[],int len) {
 
 	int crc = crc_cal(data_p, len - 2);
-	data_p[len-2] = crc & 0xFF;		  // Ğ£ÑéÎ»µÍ
-	data_p[len-1] = (crc & 0xFF00) >> 8; // Ğ£ÑéÎ»¸ß
+	data_p[len-2] = crc & 0xFF;		  // æ ¡éªŒä½ä½
+	data_p[len-1] = (crc & 0xFF00) >> 8; // æ ¡éªŒä½é«˜
 
 	ESP_LOGI(TAG, "UART send len: %d", len);
 	if (debug)
@@ -124,14 +133,14 @@ static void uart_send(char data_p[],int len) {
 }
 
 /*
- *´®¿Ú½ÓÊÜĞÅÏ¢*/
+ *ä¸²å£æ¥å—ä¿¡æ¯*/
 static int uart_rec(uint8_t * data_rec_p) {
 	// Read data from UART
 	return uart_read_bytes(uart_num, data_rec_p, sizeof(uint8_t) * BUF_SIZE, PACKET_READ_TICS);
 }
 
 /*
- *½âÎö´®¿Ú½ÓÊÜĞÅÏ¢*/
+ *è§£æä¸²å£æ¥å—ä¿¡æ¯*/
 static void get_rec_data(uint8_t *data_rec_p, int data_rec_len)
 {
 	uint8_t byte_i;
@@ -153,20 +162,20 @@ static void get_rec_data(uint8_t *data_rec_p, int data_rec_len)
 			printf("end\r\n");
 		if (data_rec_len == 41)
 		{
-			float *voltage_p = &voltage;
-			float *current_p = &current;
-			float *a_power_p = &a_power;
-			float *r_power_p = &r_power;
-			float *ap_power_p = &ap_power;
-			float *power_factor_p = &power_factor;
-			float *power_frequency_p = &power_frequency;
+			volatile float *voltage_p = &voltage;
+			volatile float *current_p = &current;
+			volatile float *a_power_p = &a_power;
+			volatile float *r_power_p = &r_power;
+			volatile float *ap_power_p = &ap_power;
+			volatile float *power_factor_p = &power_factor;
+			volatile float *power_frequency_p = &power_frequency;
 
 			print_ddsu666_params(hexArray, voltage_p, current_p, a_power_p, r_power_p,
 								 ap_power_p, power_factor_p, power_frequency_p);
 		}
 		if (data_rec_len == 9)
 		{
-			float *total_engery_p = &total_engery;
+			volatile float *total_engery_p = &total_engery;
 			print_ddsu666_total_energy(hexArray, total_engery_p);
 		}
 	}
@@ -174,7 +183,7 @@ static void get_rec_data(uint8_t *data_rec_p, int data_rec_len)
 		ESP_LOGI(TAG, "no data rec");
 }
 /*
- *Çå¿ÕÀÛ¼ÆµçÁ¿*/
+ *æ¸…ç©ºç´¯è®¡ç”µé‡*/
 static void clear_total_engery()
 {
 	is_clear_total_engery = 0;
@@ -204,68 +213,102 @@ static void clear_total_engery()
 		ESP_LOGW(TAG, "clear clear_total_engery error");
 }
 
-/*Ñ­»·º¯Êı*/
+/*å¾ªç¯å‡½æ•°*/
 void uart_loop(void *arg) {
+	
+	// Subscribe this task to TWDT, then check if it is subscribed
+	ESP_ERROR_CHECK(esp_task_wdt_add(NULL));
+	ESP_ERROR_CHECK(esp_task_wdt_status(NULL));
+	ESP_LOGI(dogTAG, "Subscribed to TWDT\n");
+	
 	ESP_LOGI(TAG, "UART send.\r");
+	
+	// ä»¥ä¸‹ä¸ºäº†é…åˆçœ‹é—¨ç‹—å–‚ç‹—æ—¶é—´10ç§’é™åˆ¶è¿›è¡Œæ›´æ”¹.
+	
+	// åŸºå‡†å¾ªç¯, æ¯ç§’+1;
+	int inner_loop = 0;
 	while (loop)
 	{
-		// 300´ÎÑ­»·Ö®ºó»Ö¸´60ÃëÑ­»·
-		++loop_count;
-		if (loop_count == 10)
 		{
-			ESP_LOGI(TAG, "restore defult 60s loop");
-			change_rec_wait(stable_rec_wait);
+			// å–‚ç‹—
+			esp_task_wdt_reset();
+			// æ¸…é™¤ç”µèƒ½ç´¯è®¡æ•°æ®
+			if (is_clear_total_engery)
+				clear_total_engery();
 		}
-		// Çå³ıµçÄÜÀÛ¼ÆÊı¾İ
-		if (is_clear_total_engery)
-			clear_total_engery();
-		
-		// ²éÑ¯µçÑ¹µçÁ÷ÓĞÓÃ¹¦ÂÊ
-		// send
-		if (debug) printf("^^^^^^^^\r\n");
-		uart_send(ddsu666_params, sizeof(ddsu666_params)); // CHECK SOFTWARE VERSION
-		vTaskDelay(300 / portTICK_PERIOD_MS);
 
-		// receive
-		int rec_len = uart_rec(data_rec_p);
-		vTaskDelay(700 / portTICK_PERIOD_MS);
-		get_rec_data(data_rec_p, rec_len);
+		// inner_loop æ¯ç§’+1, æ­£å¥½ä½œä¸ºrec_waitçš„æ¯”è¾ƒåŸºå‡†;
+		if (inner_loop >= rec_wait - 1) // ä¸²å£æœ‰1ç§’ç­‰å¾…æ—¶é—´, so - 1
+		{
+			++loop_count;	// å®é™…å¾ªç¯+1
+			inner_loop = 0; // åŸºå‡†å¾ªç¯ç½®é›¶
+
+			// temp_max_loopæ¬¡å®é™…å¾ªç¯ä¹‹åæ¢å¤å¸¸æ€stable_rec_waitç§’å¾ªç¯
+			if (loop_count == temp_max_loop)
+			{
+				ESP_LOGI(TAG, "restore defult %ds loop", stable_rec_wait);
+				change_rec_wait(stable_rec_wait); // æŠŠ
+			}
+
+			// è®°å½•è¿è¡Œæ—¶é—´æˆ³
+			uart_tx_rx_timestamp = (int)pdTICKS_TO_MS(xTaskGetTickCount()) / 1000;
+
+			// æŸ¥è¯¢ç”µå‹ç”µæµæœ‰ç”¨åŠŸç‡
+			// send
+			if (debug)
+				printf("^^^^^^^^\r\n");
+			uart_send(ddsu666_params, sizeof(ddsu666_params)); // CHECK SOFTWARE VERSION
+			vTaskDelay(250 / portTICK_PERIOD_MS);
+
+			// receive
+			int rec_len = uart_rec(data_rec_p);
+			vTaskDelay(250 / portTICK_PERIOD_MS);
+			get_rec_data(data_rec_p, rec_len);
+			// vTaskDelay(500 / portTICK_PERIOD_MS);
+
+			// æŸ¥è¯¢ç´¯è®¡ç”µé‡
+			// send
+			uart_send(ddsu666_Ep, sizeof(ddsu666_Ep));
+			vTaskDelay(250 / portTICK_PERIOD_MS);
+			// receive
+			rec_len = uart_rec(data_rec_p);
+			vTaskDelay(250 / portTICK_PERIOD_MS);
+			get_rec_data(data_rec_p, rec_len);
+			if (debug)
+				printf("^^^^^^^^\r\n");
+		}
+		else ++inner_loop;
+			
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-		// ²éÑ¯ÀÛ¼ÆµçÁ¿
-		// send
-		uart_send(ddsu666_Ep, sizeof(ddsu666_Ep));
-		vTaskDelay(300 / portTICK_PERIOD_MS);
-		// receive
-		rec_len = uart_rec(data_rec_p);
-		vTaskDelay(700 / portTICK_PERIOD_MS);
-		get_rec_data(data_rec_p, rec_len);
-		vTaskDelay(rec_wait*1000 / portTICK_PERIOD_MS);
-		if (debug) printf("^^^^^^^^\r\n");
-	
 	}
-	// Í£Ö¹Ñ­»·É¾³ıÈÎÎñ
+	// åœæ­¢å¾ªç¯åˆ é™¤ä»»åŠ¡
 	if (!loop)
 	{
+		// Unsubscribe this task
+		ESP_ERROR_CHECK(esp_task_wdt_delete(NULL));
+		ESP_LOGI(dogTAG, "Unsubscribed from TWDT\n");
+		// If we manually initialized the TWDT, deintialize it now
+		ESP_ERROR_CHECK(esp_task_wdt_deinit());
+		ESP_LOGI(dogTAG, "TWDT deinitialized\n");
 		vTaskDelete(NULL);
 	}
 }
 
 /*
- *É¾³ı´®¿ÚÑ­»·ÈÎÎñ*/
+ *åˆ é™¤ä¸²å£å¾ªç¯ä»»åŠ¡*/
 void remove_rec_task() {
 	loop = 0;
 }
 
 /*
- *¸ü¸ÄÑ­»·µÈ´ıÊ±¼ä*/
+ *æ›´æ”¹å¾ªç¯ç­‰å¾…æ—¶é—´*/
 void change_rec_wait(int sec) {
 	
 	loop_count = 0;
 	rec_wait = sec;
 }
 /*
- *Çå³ıÀÛ¼ÆµçÁ¿*/
+ *æ¸…é™¤ç´¯è®¡ç”µé‡*/
 void set_is_clear_total_engery() {
 	is_clear_total_engery = 1;
 	}
@@ -276,4 +319,8 @@ int get_loop_count() {
 
 int get_rec_wait() {
 	return rec_wait;
+}
+
+int get_uart_tx_rx_timestamp() {
+	return uart_tx_rx_timestamp;
 }

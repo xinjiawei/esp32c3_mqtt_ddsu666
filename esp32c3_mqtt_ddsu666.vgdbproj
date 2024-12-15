@@ -58,6 +58,7 @@
         <BuildAllTargetsInSubdir>false</BuildAllTargetsInSubdir>
         <FoldSingleItemPathLevels>true</FoldSingleItemPathLevels>
       </ProjectItemSettings>
+      <TargetSpecificSettings />
       <SetLDLibraryPathFromDependentArtifacts>true</SetLDLibraryPathFromDependentArtifacts>
       <ProjectGUID>6076d5ab-6d0c-47ec-ad91-e60d5da7fac6</ProjectGUID>
       <VirtualFolders />
@@ -187,14 +188,14 @@
     <AdditionalGDBSettings>
       <Features>
         <DisableAutoDetection>false</DisableAutoDetection>
-        <UseFrameParameter>false</UseFrameParameter>
-        <SimpleValuesFlagSupported>false</SimpleValuesFlagSupported>
-        <ListLocalsSupported>false</ListLocalsSupported>
-        <ByteLevelMemoryCommandsAvailable>false</ByteLevelMemoryCommandsAvailable>
-        <ThreadInfoSupported>false</ThreadInfoSupported>
-        <PendingBreakpointsSupported>false</PendingBreakpointsSupported>
-        <SupportTargetCommand>false</SupportTargetCommand>
-        <ReliableBreakpointNotifications>false</ReliableBreakpointNotifications>
+        <UseFrameParameter>true</UseFrameParameter>
+        <SimpleValuesFlagSupported>true</SimpleValuesFlagSupported>
+        <ListLocalsSupported>true</ListLocalsSupported>
+        <ByteLevelMemoryCommandsAvailable>true</ByteLevelMemoryCommandsAvailable>
+        <ThreadInfoSupported>true</ThreadInfoSupported>
+        <PendingBreakpointsSupported>true</PendingBreakpointsSupported>
+        <SupportTargetCommand>true</SupportTargetCommand>
+        <ReliableBreakpointNotifications>true</ReliableBreakpointNotifications>
       </Features>
       <EnableSmartStepping>false</EnableSmartStepping>
       <FilterSpuriousStoppedNotifications>false</FilterSpuriousStoppedNotifications>
@@ -204,7 +205,7 @@
       <MakeLogFile>false</MakeLogFile>
       <IgnoreModuleEventsWhileStepping>true</IgnoreModuleEventsWhileStepping>
       <UseRelativePathsOnly>false</UseRelativePathsOnly>
-      <ExitAction>None</ExitAction>
+      <ExitAction>Disconnect</ExitAction>
       <DisableDisassembly>false</DisableDisassembly>
       <ExamineMemoryWithXCommand>false</ExamineMemoryWithXCommand>
       <StepIntoNewInstanceEntry>app_main</StepIntoNewInstanceEntry>
@@ -256,7 +257,7 @@
       </Configuration>
     </DebugMethod>
     <AutoDetectRTOS>true</AutoDetectRTOS>
-    <SemihostingSupport>Auto</SemihostingSupport>
+    <SemihostingSupport>Disabled</SemihostingSupport>
     <SemihostingPollingDelay>0</SemihostingPollingDelay>
     <StepIntoEntryPoint>false</StepIntoEntryPoint>
     <ReloadFirmwareOnReset>false</ReloadFirmwareOnReset>
@@ -268,6 +269,29 @@
     <TimestampProviderTicksPerSecond>0</TimestampProviderTicksPerSecond>
     <KeepConsoleAfterExit>false</KeepConsoleAfterExit>
     <UnusedStackFillPattern xsi:nil="true" />
+    <SoftwareTracingSettings>
+      <TraceWhileDebugging>false</TraceWhileDebugging>
+      <AutoStart>false</AutoStart>
+      <StaticTracePrograms xsi:type="InsideWorkArea" />
+      <DynamicProgramAreaSize>0</DynamicProgramAreaSize>
+      <SkipInitiallyDisabledTracepoints>false</SkipInitiallyDisabledTracepoints>
+      <TraceProgramOptimization>Size</TraceProgramOptimization>
+      <OutputMode>NonBlocking</OutputMode>
+      <AssumeFramePointerIsValid>true</AssumeFramePointerIsValid>
+      <InstrumentWithNoFeasibleTracepoints>false</InstrumentWithNoFeasibleTracepoints>
+      <MaximumStringLength>255</MaximumStringLength>
+      <DeferVectorTablePatching>true</DeferVectorTablePatching>
+      <ShowAdvancedConfiguration>true</ShowAdvancedConfiguration>
+      <WorkAreaSize>4096</WorkAreaSize>
+      <DisableLiveCodePatching>false</DisableLiveCodePatching>
+    </SoftwareTracingSettings>
+    <RelatedExecutables>
+      <RelatedExecutable>
+        <Program>false</Program>
+        <LoadSymbols>false</LoadSymbols>
+        <ShowInLiveWatch>false</ShowInLiveWatch>
+      </RelatedExecutable>
+    </RelatedExecutables>
     <CheckInterfaceDrivers>false</CheckInterfaceDrivers>
   </Debug>
 </VisualGDBProjectSettings2>

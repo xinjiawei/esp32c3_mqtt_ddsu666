@@ -5,13 +5,17 @@
  * @Description:
  */
 #include "web_handler.h"
-
+#include "version.h"
 #include "wifimanager.h"
-#include "ets_sys.h"
+//#include "ets_sys.h"
+#include <rom/ets_sys.h>
 #include "form_parser.h"
 #include "uart.h"
 //#include "ir.h"
 // #include "esp_heap_trace.h"
+
+#define RET_BUFFER_SIZE 128
+#define TMP_BUFFER_SIZE 64
 
 static const char *TAG = "event handler";
 
@@ -22,15 +26,14 @@ static const char *TAG = "event handler";
 /*
  *获取系统信息
  **/
-static char *get_info_handle() {
-  char *response = NULL;
+// todo 会触发 Guru Meditation Error: Core  0 panic'ed (Load access fault). Exception was unhandled.
+static void get_info_handle(char **response) {
   cJSON *root = cJSON_CreateObject();
-  if (root == NULL) return NULL;
+  if (root == NULL) return;
 
-#define RET_BUFFER_SIZE 128
-#define TMP_BUFFER_SIZE 64
   char ret_buffer[RET_BUFFER_SIZE];
   char tmp_buffer[TMP_BUFFER_SIZE];
+  extern int debug;
 
   int64_t tick = xTaskGetTickCount();
   snprintf(ret_buffer, RET_BUFFER_SIZE, "%ldS", pdTICKS_TO_MS(tick) / 1000);
@@ -61,6 +64,7 @@ static char *get_info_handle() {
   wifi_ap_record_t ap;
   esp_wifi_sta_get_ap_info(&ap);
   cJSON_AddStringToObject(root, "wifi_ssid", (char *)ap.ssid);
+  
   esp_netif_ip_info_t ip_info;
   esp_netif_get_ip_info(g_station_netif, &ip_info);
   snprintf(ret_buffer, RET_BUFFER_SIZE, IPSTR, IP2STR(&ip_info.ip));
@@ -103,9 +107,23 @@ static char *get_info_handle() {
 
   snprintf(ret_buffer, RET_BUFFER_SIZE, "%dKB", used_bytes / 1024);
   cJSON_AddStringToObject(root, "fs_used", ret_buffer);
-  response = cJSON_Print(root);
+
+  extern temperature_sensor_handle_t temp_handle;
+  // 启用温度传感器
+  ESP_ERROR_CHECK(temperature_sensor_enable(temp_handle));
+  // 获取传输的传感器数据
+  float tsens_out;
+  ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_handle, &tsens_out));
+  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1f", tsens_out);
+  cJSON_AddStringToObject(root, "core_t", ret_buffer);
+  // 温度传感器使用完毕后，禁用温度传感器，节约功耗
+  ESP_ERROR_CHECK(temperature_sensor_disable(temp_handle));
+
+  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", debug);
+  cJSON_AddStringToObject(root, "is_debug", ret_buffer);
+
+  *response = cJSON_Print(root);
   cJSON_Delete(root);
-  return response;
 }
 
 /*
@@ -120,7 +138,7 @@ void print_free_heap() {
 
   /*
    *获取电表电源信息*/
-  static char * get_power_info() {
+  static void get_power_info(char **response) {
       extern float voltage;
       extern float current;
       extern float a_power;
@@ -130,14 +148,9 @@ void print_free_heap() {
 	  extern float power_frequency;
       extern float total_engery;
 
-	  extern int debug;
-
-#define RET_BUFFER_SIZE 128
-		#define TMP_BUFFER_SIZE 64
 	  char ret_buffer[RET_BUFFER_SIZE];
-	  char *response = NULL;
 	  cJSON *root = cJSON_CreateObject();
-	  if (root == NULL) return NULL;
+	  if (root == NULL) return;
 	  
 	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%.1f", voltage);
 	  cJSON_AddStringToObject(root, "volts", ret_buffer);
@@ -159,34 +172,35 @@ void print_free_heap() {
 	  
 	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", get_loop_count());
 	  cJSON_AddStringToObject(root, "loop_count", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", get_rec_wait());
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%ds", get_rec_wait());
 	  cJSON_AddStringToObject(root, "rec_wait", ret_buffer);
-	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", debug);
-	  cJSON_AddStringToObject(root, "debug", ret_buffer);
+
+	  int timestamp = (int) pdTICKS_TO_MS((int64_t)xTaskGetTickCount()) / 1000;
+	  int last_uart_timestamp = get_uart_tx_rx_timestamp();
+	  snprintf(ret_buffer, RET_BUFFER_SIZE, "%ds", timestamp - last_uart_timestamp);
+	  cJSON_AddStringToObject(root, "after_loop", ret_buffer);
 	  
-	  response = cJSON_Print(root);
+	  *response = cJSON_Print(root);
 	  cJSON_Delete(root);
-	  return response;
   }
-  
+
   /*
    *事件处理接口*/
-  esp_err_t index_handler(int key, const char *value, char *response_s)
+  char * index_handler(int key, const char *value)
   {
   int buffer = atoi(value);
-  char *response;
+  char *response_t = NULL;
   switch (key)
   {
   case 0: // brand
-	  response = get_power_info();
+	  get_power_info(&response_t);
 	  break;
   default:
-	  response = get_info_handle();
+	  get_info_handle(&response_t);
 	  break;  
   }
-  strcpy(response_s, response);
   extern int debug;
-  if(debug) ESP_LOGI(TAG, "key: %d, response: %s\r\n", key, response);
-  free(response);
-  return ESP_OK;
+  if(debug)
+	  ESP_LOGI(TAG, "key: %d, value: %d, response: %s\r\n", key, buffer, response_t);
+  return response_t;
 }

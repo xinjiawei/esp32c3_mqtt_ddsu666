@@ -1,7 +1,6 @@
 #include "mqtt4.h"
 #include "esp_event.h"
 #include "esp_system.h"
-#include "protocol_examples_common.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
 
@@ -18,7 +17,7 @@
 static const char *TAG = "mqtt";
 char response_s[5120];
 static int mqtt_disconnect_count = 0;
-// mqttÔÊĞíµÄÁ¬Ğø¶Ï¿ª´ÎÊı×î´óÖµ
+// mqttå…è®¸çš„è¿ç»­æ–­å¼€æ¬¡æ•°æœ€å¤§å€¼
 const static int mqtt_disconnect_count_max = 10;
 
 static esp_mqtt_client_handle_t client;
@@ -57,7 +56,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	case MQTT_EVENT_CONNECTED:
 		mqtt_disconnect_count = 0;
 		ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-		msg_id = esp_mqtt_client_publish(client, "online", response_s, 0, 1, 0);
+		msg_id = esp_mqtt_client_publish(client, "online", response_s, 0, 0, 0);
 		ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
 
 		//msg_id = esp_mqtt_client_subscribe(client, "dht20", 0);
@@ -104,12 +103,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 			if (strcmp(c_data, "info-sys") == 0)
 			{
 				printf("trigger get sys info \r\n");
-				index_handler(-1, "", response);
+				char *response_t = index_handler(-1, "");
+				strcpy(response, response_t);
+				free(response_t);
 			}
 			if (strcmp(c_data, "info-power") == 0)
 			{
 				printf("trigger get power info \r\n");
-				index_handler(0, "", response);
+				char *response_t = index_handler(0, "");
+				strcpy(response, response_t);
+				free(response_t);
 			}
 			free(c_data);
 		}
@@ -212,5 +215,5 @@ void mqtt_app_start()
 
 void mqtt_app_destroy() {
 	is_start_mqtt = 0;
-	esp_mqtt_client_destroy(client);// Ã»±ØÒª
+	esp_mqtt_client_destroy(client);// æ²¡å¿…è¦
 	}

@@ -1,8 +1,4 @@
 #include "tools.h"
-#include <stdio.h>
-#include <string.h>
-#include <sys/unistd.h>
-#include <sys/stat.h>
 #include "esp_err.h"
 #include "esp_mac.h"
 #include "esp_system.h"
@@ -11,6 +7,7 @@
 #include "esp_system.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_task_wdt.h"
 
 #include "led.h"
 
@@ -277,9 +274,9 @@ float float_from_8hex(int arr[])
 
 /*
  *解析电表电量数据*/
-void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current,
-						  float *a_power, float *r_power, float *ap_power,
-						  float *power_factor, float *power_frequency) {
+void print_ddsu666_params(uint8_t bytes[], volatile float *voltage, volatile float *current,
+						  volatile float *a_power, volatile float *r_power, volatile float *ap_power,
+						  volatile float *power_factor, volatile float *power_frequency) {
 	uint8_t ptr;
 	int ints_4[4];
 	// int data_len = sizeof(bytes);
@@ -358,7 +355,7 @@ void print_ddsu666_params(uint8_t bytes[], float *voltage, float *current,
 
 /*
  *解析电表累计电量数据*/
-void print_ddsu666_total_energy(uint8_t bytes[], float *total_energy) {
+void print_ddsu666_total_energy(uint8_t bytes[], volatile float *total_energy) {
 	uint8_t ptr;
 	int ints_4[4];
 	ptr = 3; // Point to total incoming energy data

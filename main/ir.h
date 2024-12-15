@@ -1,3 +1,4 @@
+#pragma once
 #ifndef IRBABY_IR_H_
 #define IRBABY_IR_H_
 #include "driver/rmt_tx.h"

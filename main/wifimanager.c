@@ -239,10 +239,9 @@ static void start_esptouch_v1(void)
   remove_rec_task(); // 不启动uart任务
   mqtt_app_destroy(); // 不启动mqtt
   // 配网的优先级应该是最高的
-  
 
-  //xTaskCreate(led_loop, "led_blink", 128, NULL, 32, NULL);
-  xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 102400, NULL);
+  // 优先级最大为24
+  xTaskCreate(smartconfig_task, "smartconfig_task", 4096, NULL, 24, NULL);
 
   ESP_ERROR_CHECK(esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
 }
