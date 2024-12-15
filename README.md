@@ -40,7 +40,7 @@ ota升级：
 
 ### 配置固件
 + 安装visualgdb
-+ 编辑 Kconfig.projbuild文件, 填写自己的mqtt地址和ota地址, remake项目
++ ifd menu 内找到Example Configuration菜单, 编辑填写自己的mqtt地址和ota地址, 然后remake项目
 + build
 
 ### 安装客户端
