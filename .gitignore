@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /main/Kconfig.projbuild
 .visualgdb/
 /sdkconfig
+/sdkconfig
