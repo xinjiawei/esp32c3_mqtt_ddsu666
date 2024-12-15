@@ -72,9 +72,9 @@ FE FE FE FE 68 48 89 09 19 08 21 68 14 0E 33 33 35 3D 35 33 33 33 33 33 33 33 33
 >
 
 ## 效果
-![example](https://cf.mb6.top/lib/images/github/20241211/b00b9f9237d13798349b2a507c80cbb5.jpg)
+![example](https://cf.mb6.top/lib/images/github/20241211/b00b9f9237d13798349b2a507c80cbb5.webp)
 ![example](https://cf.mb6.top/lib/images/github/20241211/C_N4NO1R8U@SJICKCO_NTEB.png)
 ![example](https://cf.mb6.top/lib/images/github/20241211/97899446cfe9345c70c12590cad1b4c7.jpg)
-![example](https://cf.mb6.top/lib/images/github/20241211/8ec66436be77d89e5c580668dc014438.jpg)
+![example](https://cf.mb6.top/lib/images/github/20241211/8ec66436be77d89e5c580668dc014438.webp)
 
 
