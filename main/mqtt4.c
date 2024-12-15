@@ -100,6 +100,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		if (strcmp(c_topic, "sysop-get") == 0)
 		{
 			free(c_topic);
+			// todo 执行可能导致系统崩溃, 怀疑是c99标准和nano format兼容问题
 			if (strcmp(c_data, "info-sys") == 0)
 			{
 				printf("trigger get sys info \r\n");
