@@ -67,6 +67,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	case MQTT_EVENT_DISCONNECTED:
 		++mqtt_disconnect_count;
 		ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED, count:%d", mqtt_disconnect_count);
+		led_loop(3);
 		if (mqtt_disconnect_count == mqtt_disconnect_count_max)
 		{
 			esp_restart();

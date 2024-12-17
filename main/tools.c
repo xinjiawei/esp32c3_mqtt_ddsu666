@@ -68,7 +68,7 @@ void filesys_init()
 	}
 	else
 	{
-		ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+		ESP_LOGI(TAG, "Partition size: total: %zu, used: %zu", total, used);
 	}
 
 	// Check consistency of reported partition size info.
@@ -169,9 +169,9 @@ void print_sys_info()
 	// 获取IDF版本
 	printf("SDK version:%s\n", esp_get_idf_version());
 	// 获取芯片可用内存
-	printf("esp_get_free_heap_size : %ld  \n", esp_get_free_heap_size());
+	printf("esp_get_free_heap_size : %ld  \n", (unsigned long int) esp_get_free_heap_size());
 	// 获取从未使用过的最小内存
-	printf("esp_get_minimum_free_heap_size : %ld  \n", esp_get_minimum_free_heap_size());
+	printf("esp_get_minimum_free_heap_size : %ld  \n", (unsigned long int) esp_get_minimum_free_heap_size());
 	uint8_t mac[6];
 	esp_read_mac(mac, ESP_MAC_WIFI_STA);
 	printf("esp_read_mac(): %02x:%02x:%02x:%02x:%02x:%02x \n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);

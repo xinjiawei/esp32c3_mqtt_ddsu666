@@ -52,7 +52,7 @@ static void smartconfig_task(void *parm)
 		}
 		if (uxBits & WIFI_FAIL_BIT)
 		{
-			ESP_LOGW(TAGTOUCH, "==WiFi Connected err, ubit: %ld", uxBits);
+			ESP_LOGW(TAGTOUCH, "==WiFi Connected err, ubit: %ld", (unsigned long int) uxBits);
 			if (ESPTOUCH_TRY_CONNECT_BIT)
 			{
 				ESP_LOGW(TAGTOUCH, "==WiFi esptouch Connected err, restart");
@@ -211,7 +211,7 @@ static bool wifi_connect_to_ap(const char *ssid, const char *password)
 bool wifi_start_ap()
 {
 	char ssid[32];
-	snprintf(ssid, 52, "esp32c3");
+	snprintf(ssid, 32, "esp32c3");
 	wifi_config_t wifi_config = {
 		.ap = {
 			.ssid_len = strlen(ssid),

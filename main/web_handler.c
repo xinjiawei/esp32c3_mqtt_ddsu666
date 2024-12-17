@@ -38,7 +38,7 @@ static void get_info_handle(char **response)
 	extern int debug;
 
 	int64_t tick = xTaskGetTickCount();
-	snprintf(ret_buffer, RET_BUFFER_SIZE, "%ldS", pdTICKS_TO_MS(tick) / 1000);
+	snprintf(ret_buffer, RET_BUFFER_SIZE, "%ldS", (unsigned long int) pdTICKS_TO_MS(tick) / 1000);
 	cJSON_AddStringToObject(root, "boot", ret_buffer);
 
 	itoa(heap_caps_get_total_size(MALLOC_CAP_32BIT) / 1024, tmp_buffer, 10);
@@ -90,24 +90,24 @@ static void get_info_handle(char **response)
 
 	cJSON_AddStringToObject(root, "sdk_version", esp_get_idf_version());
 
-	snprintf(ret_buffer, RET_BUFFER_SIZE, "%ldMHz", ets_get_cpu_frequency());
+	snprintf(ret_buffer, RET_BUFFER_SIZE, "%ldMHz", (unsigned long int) ets_get_cpu_frequency());
 	cJSON_AddStringToObject(root, "cpu_freq", ret_buffer);
 
 	uint32_t size_flash_chip;
 	esp_flash_get_size(NULL, &size_flash_chip);
 
 	snprintf(ret_buffer, RET_BUFFER_SIZE, "%ldMB",
-			 size_flash_chip / 1024 / 1024);
+			 (unsigned long int) size_flash_chip / 1024 / 1024);
 	cJSON_AddStringToObject(root, "flash_size", ret_buffer);
 
 	// cJSON_AddStringToObject(root, "flash_speed", );
 	size_t total_bytes, used_bytes;
 	esp_spiffs_info("spiffs", &total_bytes, &used_bytes);
 
-	snprintf(ret_buffer, RET_BUFFER_SIZE, "%dKB", total_bytes / 1024);
+	snprintf(ret_buffer, RET_BUFFER_SIZE, "%zuKB", total_bytes / 1024);
 	cJSON_AddStringToObject(root, "fs_total", ret_buffer);
 
-	snprintf(ret_buffer, RET_BUFFER_SIZE, "%dKB", used_bytes / 1024);
+	snprintf(ret_buffer, RET_BUFFER_SIZE, "%zuKB", used_bytes / 1024);
 	cJSON_AddStringToObject(root, "fs_used", ret_buffer);
 
 	extern temperature_sensor_handle_t temp_handle;
