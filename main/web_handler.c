@@ -172,7 +172,7 @@ static void get_power_info(char **response)
 	snprintf(ret_buffer, RET_BUFFER_SIZE, "%.2fHz", power_frequency);
 	cJSON_AddStringToObject(root, "pfr", ret_buffer);
 
-	snprintf(ret_buffer, RET_BUFFER_SIZE, "%.2fkWH", total_engery);
+	snprintf(ret_buffer, RET_BUFFER_SIZE, "%.2f", total_engery);
 	cJSON_AddStringToObject(root, "total_e", ret_buffer);
 
 	snprintf(ret_buffer, RET_BUFFER_SIZE, "%d", get_loop_count());

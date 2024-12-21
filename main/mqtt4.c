@@ -13,7 +13,7 @@ static const char *TAG = "mqtt";
 char response_s[5120];
 static int mqtt_disconnect_count = 0;
 // mqtt允许的连续断开次数最大值
-const static int mqtt_disconnect_count_max = 10;
+const static int mqtt_disconnect_count_max = 5;
 
 static esp_mqtt_client_handle_t client;
 

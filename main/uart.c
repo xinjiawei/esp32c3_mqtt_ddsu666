@@ -9,8 +9,8 @@ static const char *dogTAG = "watchdog";
 
 // Note: Some pins on target chip cannot be assigned for UART communication.
 // Please refer to documentation for selected board and target to configure pins using Kconfig.
-#define ECHO_TEST_TXD (9)
-#define ECHO_TEST_RXD (10)
+#define ECHO_TEST_TXD (5)
+#define ECHO_TEST_RXD (6)
 
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS (UART_PIN_NO_CHANGE)

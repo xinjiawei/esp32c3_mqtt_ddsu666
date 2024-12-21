@@ -17,6 +17,11 @@
 // #include "ir.h"
 // #include "esp_heap_trace.h"
 
+#ifdef CONFIG_ESP_TASK_WDT_INIT
+// CONFIG_ESP_TASK_WDT_INIT 不能设为1
+#error "CONFIG_ESP_TASK_WDT_INIT can not init automatic, close it!"
+#endif // CONFIG_ESP_TASK_WDT_INIT
+
 #define ECHO_TASK_STACK_SIZE (3072)
 
 static const char *TAG = "main";
