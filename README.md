@@ -70,6 +70,7 @@ FE FE FE FE 68 48 89 09 19 08 21 68 14 0E 33 33 35 3D 35 33 33 33 33 33 33 33 33
 ~~~
 >
 > ddsu666电表, modbus交互数据格式参考: https://www.modbus.cn/10181.html
+>
 > uint8转float的代码参考: https://github.com/gjtimms/Modbus-RTU-Listen
 >
 
