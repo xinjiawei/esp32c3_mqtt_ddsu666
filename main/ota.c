@@ -11,6 +11,7 @@ Unless required by applicable law or agreed to in writing, this
 #include "tools.h"
 
 #define HASH_LEN 32
+//#define CONFIG_OTA_HTTPS 1 // 是否使用 HTTPS 升级
 
 static const char *TAG = "OTA_update";
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
@@ -55,15 +56,13 @@ void simple_ota_example_task(void *pvParameter)
 	extern const char *ota_url;
 	esp_http_client_config_t config = {
 		.url = ota_url,
-#ifdef CONFIG_EXAMPLE_USE_CERT_BUNDLE
-        .crt_bundle_attach = esp_crt_bundle_attach,
-#else
-        .cert_pem = (char *)server_cert_pem_start,
+#ifdef CONFIG_OTA_HTTPS
+		.cert_pem = (char *)server_cert_pem_start,
+		.skip_cert_common_name_check = true, // 跳过证书cn检查
 #endif /* CONFIG_EXAMPLE_USE_CERT_BUNDLE */
         .event_handler = _http_event_handler,
         .keep_alive_enable = true,
     };
-    config.skip_cert_common_name_check = true;// 跳过证书cn检查
 
     esp_https_ota_config_t ota_config = {
         .http_config = &config,

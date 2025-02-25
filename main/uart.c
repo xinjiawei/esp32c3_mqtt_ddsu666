@@ -282,7 +282,7 @@ void uart_loop(void *arg)
 		}
 		else
 			++inner_loop;
-
+		
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 	// 停止循环删除任务

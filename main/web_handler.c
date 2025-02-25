@@ -59,7 +59,12 @@ static void get_info_handle(char **response)
 											 "other watchdogs",
 											 "exiting deep sleep mode",
 											 "browout reset",
-											 "SDIO"};
+											 "SDIO",
+											 "USB peripheral",
+											 "JTAG",
+											 "efuse error",
+											 "power glitch detected",
+											 "CPU lock up"};
 	cJSON_AddStringToObject(root, "reset_reason",
 							reset_reason_str[esp_reset_reason()]);
 

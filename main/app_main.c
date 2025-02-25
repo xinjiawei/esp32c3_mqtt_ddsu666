@@ -31,6 +31,7 @@ temperature_sensor_handle_t temp_handle = NULL;
 const char *ota_url = CONFIG_DDSU666_OTA;
 const char *mqtt4_connect_url = CONFIG_DDSU666_MQTT;
 
+
 // #define NUM_RECORDS 10
 // static heap_trace_record_t trace_record[NUM_RECORDS]; // 该缓冲区必须在内部 RAM 中
 
