@@ -168,7 +168,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 			}
 			free(c_data);
 		}
-		msg_id = esp_mqtt_client_publish(client, "esp32_response", response, 0, 0, 0);
+		// 必须retain1
+		msg_id = esp_mqtt_client_publish(client, "esp32_response", response, 0, 0, 1);
 		extern int debug;
 		if (debug)
 			printf("sent sys info successful, msg_id=%d, resp: %s\r\n", msg_id, response);
