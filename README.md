@@ -58,7 +58,7 @@ ota升级：
 >配套的用电量微信通知脚本: https://github.com/xinjiawei/ddsu666_power_meter_notify
 
 ## 已知的问题
-+ mqtt订阅sysop-get的topic, 收到info-sys, 执行系统信息查询, 然后发布系统数据到esp32_response的topic. 这个过程有概率触发系统崩溃重启, 无法稳定复现问题. 如果首次启动系统后立刻操作有概率触发.
++ ~~mqtt订阅sysop-get的topic, 收到info-sys, 执行系统信息查询, 然后发布系统数据到esp32_response的topic. 这个过程有概率触发系统崩溃重启, 无法稳定复现问题. 如果首次启动系统后立刻操作有概率触发.~~ 已修复
 
 ## 笔记
 
